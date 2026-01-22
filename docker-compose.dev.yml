@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: angkorlance-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/angkorlance
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - db
+    volumes:
+      - ./backend/uploads:/app/uploads
+
+  db:
+    image: postgres:15
+    container_name: angkorlance-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: angkorlance
+    ports:
+      - "5432:5432"
+    volumes:
+      - angkorlance-db-data:/var/lib/postgresql/data
+
+volumes:
+  angkorlance-db-data:
