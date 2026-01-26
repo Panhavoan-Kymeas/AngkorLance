@@ -2,18 +2,21 @@ version: "3.9"
 
 services:
   backend:
-    build: ./backend
-    container_name: angkorlance-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
     ports:
       - "8080:8080"
+    volumes:
+      - ./backend:/app                  # Mount local source into container
+      - ~/.m2:/root/.m2                 # Cache Maven dependencies
+      - ./backend/target:/app/target    # Mount compiled classes for DevTools
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/angkorlance
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/angkorlance
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
     depends_on:
       - db
-    volumes:
-      - ./backend/uploads:/app/uploads
 
   db:
     image: postgres:15

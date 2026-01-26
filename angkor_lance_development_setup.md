@@ -21,7 +21,8 @@ This README currently documents **development setup only**.
 AngkorLance/
 ├── backend/              # Spring Boot application
 │   ├── src/
-│   ├── Dockerfile        # Backend Dockerfile (dev/prod compatible)
+│   ├── Dockerfile
+│   ├── Dockerfile.dev
 │   └── pom.xml
 │
 ├── frontend/             # React (Vite) application
@@ -63,7 +64,11 @@ This setup gives fast frontend hot‑reload while keeping backend + DB consisten
 From the project root:
 
 ```bash
-docker-compose -f docker-compose.dev.yml up --build
+# First time or after dependency changes
+docker compose -f docker-compose.dev.yml up --build
+
+# Normal development
+docker compose -f docker-compose.dev.yml up
 ```
 
 This will:

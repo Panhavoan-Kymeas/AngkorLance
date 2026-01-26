@@ -1,0 +1,12 @@
+# Use Maven + JDK for compiling and running Spring Boot in dev
+FROM maven:3.9-eclipse-temurin-21
+
+WORKDIR /app
+
+# Copy pom.xml first to cache dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+# Mount source code and compiled classes from host
+# The CMD runs spring-boot:run so DevTools can watch changes
+CMD ["mvn", "spring-boot:run", "-Dspring-boot.run.fork=false"]
