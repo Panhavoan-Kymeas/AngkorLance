@@ -84,4 +84,16 @@ public class JwtUtil {
                 .getBody();
         return claims.getExpiration();
     }
+
+    // Extract user ID from token
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey()) // use your secret key
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Long.parseLong(claims.getSubject()); // subject is the user ID
+    }
+    
 }

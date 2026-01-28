@@ -4,12 +4,15 @@ import com.angkorlance.backend.dto.ApiResponse;
 import com.angkorlance.backend.exception.DuplicateEmailException;
 import com.angkorlance.backend.exception.InvalidCredentialsException;
 import com.angkorlance.backend.exception.InvalidRoleException;
+import com.angkorlance.backend.exception.AccessDeniedException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -67,6 +70,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(new ApiResponse<>(false, "Login failed", errors));
+    }
+
+    // Handle access denied for role-based restrictions
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleAccessDenied(AccessDeniedException ex) {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", ex.getMessage()); // generic field for frontend
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN) // 403
+                .body(new ApiResponse<>(false, "Access denied", errors));
     }
 
     // Handle any other unexpected exceptions
