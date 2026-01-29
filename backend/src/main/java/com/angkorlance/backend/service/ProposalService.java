@@ -33,7 +33,11 @@ public class ProposalService {
         }
 
         // Find the job
-        Job job = jobRepository.findById(request.getJobId())
+        Long jobId = request.getJobId();
+        if (jobId == null) {
+            throw new IllegalArgumentException("Job ID cannot be null");
+        }
+        Job job = jobRepository.findById(jobId)
                 .orElseThrow(() -> new IllegalArgumentException("Job not found"));
 
         // Check if the freelancer already submitted a proposal

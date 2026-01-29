@@ -16,7 +16,11 @@ public class DatabaseService {
     }
 
     public String checkConnection() {
-        try (Connection conn = jdbcTemplate.getDataSource().getConnection()) {
+        var dataSource = jdbcTemplate.getDataSource();
+        if (dataSource == null) {
+            return "Database connection error: DataSource is null";
+        }
+        try (Connection conn = dataSource.getConnection()) {
             return (conn != null && !conn.isClosed()) 
                     ? "Database connected succefully!"
                     : "Database connection failed!";

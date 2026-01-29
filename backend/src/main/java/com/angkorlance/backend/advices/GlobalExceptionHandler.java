@@ -4,6 +4,7 @@ import com.angkorlance.backend.dto.ApiResponse;
 import com.angkorlance.backend.exception.DuplicateEmailException;
 import com.angkorlance.backend.exception.InvalidCredentialsException;
 import com.angkorlance.backend.exception.InvalidRoleException;
+import com.angkorlance.backend.exception.UnauthorizedException;
 import com.angkorlance.backend.exception.AccessDeniedException;
 
 import org.springframework.http.HttpStatus;
@@ -82,6 +83,14 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN) // 403
                 .body(new ApiResponse<>(false, "Access denied", errors));
     }
+
+    // Handle UnauthorizedException thrown when token is missing, invalid, or expired
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse<>(false, ex.getMessage(), null));
+    }
+
 
     // Handle any other unexpected exceptions
     @ExceptionHandler(Exception.class)
