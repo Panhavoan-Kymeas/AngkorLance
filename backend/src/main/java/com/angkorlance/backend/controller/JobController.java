@@ -24,6 +24,7 @@ public class JobController {
         this.userService = userService;
     }
 
+    // Create Job
     @PostMapping
     public ResponseEntity<ApiResponse<JobResponse>> createJob(
             @RequestHeader("Authorization") String authHeader,
@@ -34,4 +35,18 @@ public class JobController {
 
         return ResponseEntity.ok(new ApiResponse<>(true, "Job created successfully", job));
     }
+
+    // View Job
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<List<JobResponse>>> getMyJobs(
+            @RequestHeader("Authorization") String authHeader) {
+
+        User user = userService.getUserFromToken(authHeader);
+
+        List<JobResponse> jobs = jobService.getJobsByClient(user);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Jobs retrieved successfully", jobs));
+    }
+
 }
