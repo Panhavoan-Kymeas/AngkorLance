@@ -1,19 +1,20 @@
 package com.angkorlance.backend.service;
 
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.angkorlance.backend.dto.LoginRequest;
 import com.angkorlance.backend.dto.LoginResponse;
 import com.angkorlance.backend.dto.RegisterRequest;
 import com.angkorlance.backend.entity.Role;
 import com.angkorlance.backend.entity.User;
 import com.angkorlance.backend.exception.DuplicateEmailException;
-import com.angkorlance.backend.exception.InvalidRoleException;
 import com.angkorlance.backend.exception.InvalidCredentialsException;
+import com.angkorlance.backend.exception.InvalidRoleException;
 import com.angkorlance.backend.repository.RoleRepository;
 import com.angkorlance.backend.repository.UserRepository;
 import com.angkorlance.backend.security.JwtUtil;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
@@ -29,6 +30,17 @@ public class AuthService {
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+    }
+
+    // Get user details by ID (used in JWT filter)
+    public User getUserById(String id) {
+        try {
+            long userId = Long.parseLong(id);
+            return userRepository.findById(userId)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        } catch (NumberFormatException e) {
+            throw new UsernameNotFoundException("Invalid user ID in token");
+        }
     }
 
     // Registers a new user with a role.
