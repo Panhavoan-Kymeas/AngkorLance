@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.angkorlance.backend.dto.ClientJobResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
+import com.angkorlance.backend.dto.UpdateJobRequestDto;
 import com.angkorlance.backend.entity.Image;
 import com.angkorlance.backend.entity.Job;
 import com.angkorlance.backend.entity.User;
@@ -65,24 +66,90 @@ public class JobService {
 
     public List<ClientJobResponseDto> getClientJobs(Long clientId) {
 
-    List<Job> jobs = jobRepository.findByClientId(clientId);
+        List<Job> jobs = jobRepository.findByClientId(clientId);
 
-    return jobs.stream()
-            .map(job -> new ClientJobResponseDto(
-                    job.getId(),
-                    job.getTitle(),
-                    job.getCategory(),
-                    job.getBudget(),
-                    job.getStatus(),
-                    job.getJobImage() != null 
-                        ? job.getJobImage().getFilePath()
-                        : null,
-                    job.getProposals() != null
-                        ? job.getProposals().size()
-                        : 0
-            ))
-            .toList();
-}
+        return jobs.stream()
+                .map(job -> new ClientJobResponseDto(
+                        job.getId(),
+                        job.getTitle(),
+                        job.getCategory(),
+                        job.getBudget(),
+                        job.getStatus(),
+                        job.getJobImage() != null
+                                ? job.getJobImage().getFilePath()
+                                : null,
+                        job.getProposals() != null
+                                ? job.getProposals().size()
+                                : 0))
+                .toList();
+    }
 
+    public void deleteJob(Long jobId, Long clientId) {
+
+        Job job = jobRepository.findByIdAndClientId(jobId, clientId)
+                .orElseThrow(() -> new RuntimeException("Job not found or not authorized"));
+
+        if (!"OPEN".equals(job.getStatus())) {
+            throw new RuntimeException("Only OPEN jobs can be deleted");
+        }
+
+        jobRepository.delete(job);
+    }
+
+    public ClientJobResponseDto updateJob(Long jobId, UpdateJobRequestDto dto, Long userId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        // Ensure this job belongs to the current client
+        if (!job.getClient().getId().equals(userId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        // Only allow updates if job is OPEN
+        if (!"OPEN".equals(job.getStatus())) {
+            throw new RuntimeException("Cannot update job that is not OPEN");
+        }
+
+        // Update fields if provided
+        if (dto.getTitle() != null)
+            job.setTitle(dto.getTitle());
+        if (dto.getDescription() != null)
+            job.setDescription(dto.getDescription());
+        if (dto.getCategory() != null)
+            job.setCategory(dto.getCategory());
+        if (dto.getBudget() != null)
+            job.setBudget(dto.getBudget());
+
+        job.setUpdatedAt(LocalDateTime.now());
+
+        Job updatedJob = jobRepository.save(job);
+
+        return mapToResponseDto(updatedJob); // map to ClientJobResponseDto
+    }
+
+    public ClientJobResponseDto mapToResponseDto(Job job) {
+        String imagePath = null;
+
+        // get job image path if exists
+        Image jobImage = job.getJobImage();
+        if (jobImage != null) {
+            imagePath = jobImage.getFilePath();
+        }
+
+        int proposalCount = 0;
+        if (job.getProposals() != null) {
+            proposalCount = job.getProposals().size();
+        }
+
+        return new ClientJobResponseDto(
+                job.getId(),
+                job.getTitle(),
+                job.getCategory(),
+                job.getBudget(),
+                job.getStatus(),
+                imagePath,
+                proposalCount
+        );
+    }
 
 }

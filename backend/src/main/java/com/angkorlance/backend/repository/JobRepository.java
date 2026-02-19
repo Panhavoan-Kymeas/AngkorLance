@@ -1,6 +1,7 @@
 package com.angkorlance.backend.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -18,4 +19,6 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
     // Optional: find jobs by category
     List<Job> findByCategory(String category);
+
+    Optional<Job> findByIdAndClientId(Long jobId, Long clientId);
 }
