@@ -1,10 +1,12 @@
 package com.angkorlance.backend.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.angkorlance.backend.dto.ClientJobResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
 import com.angkorlance.backend.entity.Image;
 import com.angkorlance.backend.entity.Job;
@@ -20,7 +22,7 @@ public class JobService {
     private final FileStorageService fileStorageService;
 
     public JobService(JobRepository jobRepository, UserRepository userRepository,
-                      FileStorageService fileStorageService) {
+            FileStorageService fileStorageService) {
         this.jobRepository = jobRepository;
         this.userRepository = userRepository;
         this.fileStorageService = fileStorageService;
@@ -56,4 +58,31 @@ public class JobService {
         Job savedJob = jobRepository.save(job);
         return savedJob.getId();
     }
+
+    public List<Job> getJobsByClient(Long clientId) {
+        return jobRepository.findByClientId(clientId);
+    }
+
+    public List<ClientJobResponseDto> getClientJobs(Long clientId) {
+
+    List<Job> jobs = jobRepository.findByClientId(clientId);
+
+    return jobs.stream()
+            .map(job -> new ClientJobResponseDto(
+                    job.getId(),
+                    job.getTitle(),
+                    job.getCategory(),
+                    job.getBudget(),
+                    job.getStatus(),
+                    job.getJobImage() != null 
+                        ? job.getJobImage().getFilePath()
+                        : null,
+                    job.getProposals() != null
+                        ? job.getProposals().size()
+                        : 0
+            ))
+            .toList();
+}
+
+
 }
