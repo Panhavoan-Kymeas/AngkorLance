@@ -6,10 +6,12 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.angkorlance.backend.dto.ClientJobResponseDto;
 import com.angkorlance.backend.dto.FreelancerJobResponseDto;
+import com.angkorlance.backend.dto.JobCompletionResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
 import com.angkorlance.backend.dto.JobDetailResponseDto;
 import com.angkorlance.backend.dto.UpdateJobRequestDto;
@@ -203,6 +205,26 @@ public class JobService {
                 job.getJobImage() != null
                         ? job.getJobImage().getFilePath()
                         : null));
+    }
+
+    @Transactional
+    public JobCompletionResponseDto completeJob(Long jobId, Long clientId) {
+
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        if (!job.getClient().getId().equals(clientId)) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (!"IN_PROGRESS".equals(job.getStatus())) {
+            throw new RuntimeException("Job must be IN_PROGRESS to mark as completed");
+        }
+
+        job.setStatus("COMPLETED");
+        jobRepository.save(job);
+
+        return new JobCompletionResponseDto(job.getId(), job.getStatus());
     }
 
 }

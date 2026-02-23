@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.angkorlance.backend.dto.ClientJobResponseDto;
 import com.angkorlance.backend.dto.FreelancerJobResponseDto;
+import com.angkorlance.backend.dto.JobCompletionResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
 import com.angkorlance.backend.dto.JobDetailResponseDto;
 import com.angkorlance.backend.dto.UpdateJobRequestDto;
@@ -93,6 +94,18 @@ public class JobController {
         Long userId = SecurityUtil.getCurrentUserId();
         jobService.deleteJob(jobId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Mark a job as COMPLETED
+     * Only the client who owns the job can access
+     */
+    @PostMapping("/{jobId}/complete")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<JobCompletionResponseDto> completeJob(@PathVariable Long jobId) {
+        Long clientId = SecurityUtil.getCurrentUserId();
+        JobCompletionResponseDto response = jobService.completeJob(jobId, clientId);
+        return ResponseEntity.ok(response);
     }
 
 }
