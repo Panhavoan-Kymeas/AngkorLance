@@ -2,6 +2,8 @@ package com.angkorlance.backend.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,9 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.angkorlance.backend.dto.ClientJobResponseDto;
+import com.angkorlance.backend.dto.FreelancerJobResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
 import com.angkorlance.backend.dto.JobDetailResponseDto;
 import com.angkorlance.backend.dto.UpdateJobRequestDto;
@@ -36,6 +40,14 @@ public class JobController {
     @GetMapping("/{id}")
     public ResponseEntity<JobDetailResponseDto> getJobDetail(@PathVariable Long id) {
         return ResponseEntity.ok(jobService.getJobDetail(id));
+    }
+
+    @GetMapping("/open")
+    public ResponseEntity<Page<FreelancerJobResponseDto>> getOpenJobs(
+            @RequestParam(required = false) String category,
+            Pageable pageable) {
+
+        return ResponseEntity.ok(jobService.getOpenJobs(category, pageable));
     }
 
     /**

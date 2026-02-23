@@ -3,10 +3,13 @@ package com.angkorlance.backend.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.angkorlance.backend.dto.ClientJobResponseDto;
+import com.angkorlance.backend.dto.FreelancerJobResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
 import com.angkorlance.backend.dto.JobDetailResponseDto;
 import com.angkorlance.backend.dto.UpdateJobRequestDto;
@@ -179,6 +182,27 @@ public class JobService {
                 job.getClient().getName(),
                 imagePath,
                 proposalCount);
+    }
+
+    public Page<FreelancerJobResponseDto> getOpenJobs(String category, Pageable pageable) {
+
+        Page<Job> jobs;
+
+        if (category != null && !category.isBlank()) {
+            jobs = jobRepository.findByStatusAndCategoryIgnoreCaseContaining("OPEN", category, pageable);
+        } else {
+            jobs = jobRepository.findByStatus("OPEN", pageable);
+        }
+
+        return jobs.map(job -> new FreelancerJobResponseDto(
+                job.getId(),
+                job.getTitle(),
+                job.getCategory(),
+                job.getBudget(),
+                job.getClient().getName(),
+                job.getJobImage() != null
+                        ? job.getJobImage().getFilePath()
+                        : null));
     }
 
 }
