@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.angkorlance.backend.dto.ClientJobResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
+import com.angkorlance.backend.dto.JobDetailResponseDto;
 import com.angkorlance.backend.dto.UpdateJobRequestDto;
 import com.angkorlance.backend.entity.Image;
 import com.angkorlance.backend.entity.Job;
@@ -148,8 +149,36 @@ public class JobService {
                 job.getBudget(),
                 job.getStatus(),
                 imagePath,
-                proposalCount
-        );
+                proposalCount);
+    }
+
+    public JobDetailResponseDto getJobDetail(Long jobId) {
+
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        String imagePath = null;
+        if (job.getJobImage() != null) {
+            imagePath = job.getJobImage().getFilePath();
+        }
+
+        int proposalCount = 0;
+        if (job.getProposals() != null) {
+            proposalCount = job.getProposals().size();
+        }
+
+        return new JobDetailResponseDto(
+                job.getId(),
+                job.getTitle(),
+                job.getDescription(),
+                job.getCategory(),
+                job.getBudget(),
+                job.getStatus(),
+                job.getCreatedAt(),
+                job.getClient().getId(),
+                job.getClient().getName(),
+                imagePath,
+                proposalCount);
     }
 
 }

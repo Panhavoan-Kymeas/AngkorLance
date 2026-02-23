@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.angkorlance.backend.dto.ClientJobResponseDto;
 import com.angkorlance.backend.dto.JobCreateRequestDTO;
+import com.angkorlance.backend.dto.JobDetailResponseDto;
 import com.angkorlance.backend.dto.UpdateJobRequestDto;
 import com.angkorlance.backend.security.SecurityUtil;
 import com.angkorlance.backend.service.JobService;
@@ -30,6 +31,11 @@ public class JobController {
 
     public JobController(JobService jobService) {
         this.jobService = jobService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<JobDetailResponseDto> getJobDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(jobService.getJobDetail(id));
     }
 
     /**
