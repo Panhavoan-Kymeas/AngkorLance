@@ -1,9 +1,12 @@
 package com.angkorlance.backend.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.angkorlance.backend.dto.ProposalRequestDto;
+import com.angkorlance.backend.dto.ProposalResponseDto;
 import com.angkorlance.backend.entity.Job;
 import com.angkorlance.backend.entity.Proposal;
 import com.angkorlance.backend.entity.User;
@@ -19,8 +22,8 @@ public class ProposalService {
     private final UserRepository userRepository;
 
     public ProposalService(ProposalRepository proposalRepository,
-                           JobRepository jobRepository,
-                           UserRepository userRepository) {
+            JobRepository jobRepository,
+            UserRepository userRepository) {
         this.proposalRepository = proposalRepository;
         this.jobRepository = jobRepository;
         this.userRepository = userRepository;
@@ -41,7 +44,9 @@ public class ProposalService {
 
         // Check for existing proposal
         proposalRepository.findByJobIdAndFreelancerId(job.getId(), freelancer.getId())
-                .ifPresent(p -> { throw new RuntimeException("Proposal already submitted for this job"); });
+                .ifPresent(p -> {
+                    throw new RuntimeException("Proposal already submitted for this job");
+                });
 
         Proposal proposal = new Proposal();
         proposal.setJob(job);
@@ -52,5 +57,25 @@ public class ProposalService {
 
         Proposal saved = proposalRepository.save(proposal);
         return saved.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProposalResponseDto> getProposalsForClientJob(Long jobId, Long clientId) {
+
+        User client = userRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        // Ownership check
+        if (!job.getClient().getId().equals(client.getId())) {
+            throw new RuntimeException("You are not allowed to view proposals for this job");
+        }
+
+        return proposalRepository.findByJobId(jobId)
+                .stream()
+                .map(ProposalResponseDto::fromEntity)
+                .toList();
     }
 }
