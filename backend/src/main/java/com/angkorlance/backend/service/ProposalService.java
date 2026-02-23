@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.angkorlance.backend.dto.ProposalAcceptanceResponseDto;
 import com.angkorlance.backend.dto.ProposalRequestDto;
 import com.angkorlance.backend.dto.ProposalResponseDto;
 import com.angkorlance.backend.entity.Job;
@@ -77,5 +78,36 @@ public class ProposalService {
                 .stream()
                 .map(ProposalResponseDto::fromEntity)
                 .toList();
+    }
+
+    @Transactional
+    public ProposalAcceptanceResponseDto acceptProposal(Long proposalId, Long clientId) {
+
+        Proposal proposal = proposalRepository.findById(proposalId)
+                .orElseThrow(() -> new RuntimeException("Proposal not found"));
+
+        Job job = proposal.getJob();
+
+        // Verify ownership
+        if (!job.getClient().getId().equals(clientId)) {
+            throw new RuntimeException("Unauthorized: not the owner of this job");
+        }
+
+        // Accept the selected proposal
+        proposal.setStatus("ACCEPTED");
+        proposalRepository.save(proposal);
+
+        // Reject all other proposals for this job
+        List<Proposal> otherProposals = proposalRepository.findByJobIdAndIdNot(job.getId(), proposalId);
+        for (Proposal p : otherProposals) {
+            p.setStatus("REJECTED");
+        }
+        proposalRepository.saveAll(otherProposals);
+
+        // Update job status
+        job.setStatus("IN_PROGRESS");
+        jobRepository.save(job);
+
+        return new ProposalAcceptanceResponseDto(proposal.getId(), proposal.getStatus(), job.getStatus());
     }
 }

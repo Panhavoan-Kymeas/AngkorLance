@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.angkorlance.backend.dto.ProposalAcceptanceResponseDto;
 import com.angkorlance.backend.dto.ProposalRequestDto;
 import com.angkorlance.backend.dto.ProposalResponseDto;
 import com.angkorlance.backend.security.SecurityUtil;
@@ -49,7 +50,14 @@ public class ProposalController {
         Long clientId = SecurityUtil.getCurrentUserId();
 
         return ResponseEntity.ok(
-                proposalService.getProposalsForClientJob(jobId, clientId)
-        );
+                proposalService.getProposalsForClientJob(jobId, clientId));
+    }
+
+    @PostMapping("/proposals/{proposalId}/accept")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<ProposalAcceptanceResponseDto> acceptProposal(@PathVariable Long proposalId) {
+        Long clientId = SecurityUtil.getCurrentUserId();
+        ProposalAcceptanceResponseDto response = proposalService.acceptProposal(proposalId, clientId);
+        return ResponseEntity.ok(response);
     }
 }
