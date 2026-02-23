@@ -3,6 +3,8 @@ package com.angkorlance.backend.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +23,10 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     List<Job> findByCategory(String category);
 
     Optional<Job> findByIdAndClientId(Long jobId, Long clientId);
+
+    List<Job> findByStatusAndCategory(String status, String category);
+
+    Page<Job> findByStatus(String status, Pageable pageable);
+
+    Page<Job> findByStatusAndCategoryIgnoreCaseContaining(String status, String category, Pageable pageable);
 }
