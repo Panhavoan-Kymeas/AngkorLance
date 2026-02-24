@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import Home from "../pages/public/HomePage";
+import LandingPage from "../pages/freelancer/public/LandingPage";
 import Login from "../pages/auth/LoginPage";
 import Register from "../pages/auth/RegisterPage";
 
@@ -16,7 +16,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<LandingPage />} />
 
       {/* Auth Routes */}
       <Route element={<AuthRoute />}>
