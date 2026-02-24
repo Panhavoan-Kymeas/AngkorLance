@@ -1,7 +1,9 @@
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import ClientLayout from "../layouts/ClientLayout";
+
+import ClientDashboard from "../pages/client/DashboardPage";
 
 const ClientRoute: React.FC = () => {
   const { user } = useAuth();
@@ -11,7 +13,10 @@ const ClientRoute: React.FC = () => {
 
   return (
     <ClientLayout>
-      <Outlet />
+      <Routes>
+        <Route path="dashboard" element={<ClientDashboard />} />
+        <Route path="*" element={<Navigate to="dashboard" replace />} />
+      </Routes>
     </ClientLayout>
   );
 };

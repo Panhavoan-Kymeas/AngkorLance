@@ -2,42 +2,24 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 import LandingPage from "../pages/public/LandingPage";
-import Login from "../pages/auth/LoginPage";
-import Register from "../pages/auth/RegisterPage";
-
+import AuthRoute from "./AuthRoute";
 import ClientRoute from "./ClientRoute";
 import FreelancerRoute from "./FreelancerRoute";
-import AuthRoute from "./AuthRoute";
-
-import ClientDashboard from "../pages/client/DashboardPage";
-import FreelancerDashboard from "../pages/freelancer/DashboardPage";
-
-import BrowseJobsPage from "@/pages/freelancer/BrowseJobsPage";
 
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Public */}
       <Route path="/" element={<LandingPage />} />
 
-      {/* Auth Routes */}
-      <Route element={<AuthRoute />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-      </Route>
+      {/* Auth routes */}
+      <Route path="/*" element={<AuthRoute />} />
 
-      {/* Client Routes */}
-      <Route element={<ClientRoute />}>
-        <Route path="/client/dashboard" element={<ClientDashboard />} />
-        {/* Add more client pages here */}
-      </Route>
+      {/* Client routes */}
+      <Route path="/client/*" element={<ClientRoute />} />
 
-      {/* Freelancer Routes */}
-      <Route element={<FreelancerRoute />}>
-        <Route path="/freelancer/dashboard" element={<FreelancerDashboard />} />
-        <Route path="/browse-jobs" element={<BrowseJobsPage />} />
-        {/* Add more freelancer pages here */}
-      </Route>
+      {/* Freelancer routes */}
+      <Route path="/freelancer/*" element={<FreelancerRoute />} />
 
       {/* Fallback 404 */}
       <Route path="*" element={<div>404 Not Found</div>} />

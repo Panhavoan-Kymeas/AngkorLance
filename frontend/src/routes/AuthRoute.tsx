@@ -1,19 +1,28 @@
-import React from "react"
-import { Navigate, Outlet } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
-import AuthLayout from "../layouts/AuthLayout"
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import AuthLayout from "../layouts/AuthLayout";
+
+import Login from "../pages/auth/LoginPage";
+import Register from "../pages/auth/RegisterPage";
 
 const AuthRoute: React.FC = () => {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  // Only redirect if user is logged in
-  if (user) return <Navigate to="/" replace />
+  if (user) {
+    if (user.role === "CLIENT") return <Navigate to="/client/dashboard" replace />;
+    if (user.role === "FREELANCER") return <Navigate to="/freelancer/dashboard" replace />;
+  }
 
   return (
     <AuthLayout>
-      <Outlet /> {/* renders /login or /register */}
+      <Routes>
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
+        <Route path="*" element={<Navigate to="login" replace />} />
+      </Routes>
     </AuthLayout>
-  )
-}
+  );
+};
 
-export default AuthRoute
+export default AuthRoute;

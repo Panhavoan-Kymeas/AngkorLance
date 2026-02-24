@@ -1,7 +1,10 @@
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import FreelancerLayout from "../layouts/FreelancerLayout";
+
+import FreelancerDashboard from "../pages/freelancer/DashboardPage";
+import BrowseJobsPage from "../pages/freelancer/BrowseJobsPage";
 
 const FreelancerRoute: React.FC = () => {
   const { user } = useAuth();
@@ -11,7 +14,11 @@ const FreelancerRoute: React.FC = () => {
 
   return (
     <FreelancerLayout>
-      <Outlet />
+      <Routes>
+        <Route path="dashboard" element={<FreelancerDashboard />} />
+        <Route path="browse-jobs" element={<BrowseJobsPage />} />
+        <Route path="*" element={<Navigate to="dashboard" replace />} />
+      </Routes>
     </FreelancerLayout>
   );
 };
