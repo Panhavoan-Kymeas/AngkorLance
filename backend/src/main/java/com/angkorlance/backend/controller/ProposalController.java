@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.angkorlance.backend.dto.FreelancerProposalResponseDto;
 import com.angkorlance.backend.dto.ProposalAcceptanceResponseDto;
 import com.angkorlance.backend.dto.ProposalRequestDto;
 import com.angkorlance.backend.dto.ProposalResponseDto;
@@ -59,5 +60,14 @@ public class ProposalController {
         Long clientId = SecurityUtil.getCurrentUserId();
         ProposalAcceptanceResponseDto response = proposalService.acceptProposal(proposalId, clientId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/my-proposals")
+    @PreAuthorize("hasRole('FREELANCER')")
+    public ResponseEntity<List<FreelancerProposalResponseDto>> getMyProposals() {
+
+        Long freelancerId = SecurityUtil.getCurrentUserId();
+        return ResponseEntity.ok(
+                proposalService.getFreelancerProposals(freelancerId));
     }
 }

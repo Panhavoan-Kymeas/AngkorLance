@@ -16,4 +16,6 @@ public interface ProposalRepository extends JpaRepository<Proposal, Long> {
     List<Proposal> findByJobId(Long jobId);
 
     List<Proposal> findByJobIdAndIdNot(Long jobId, Long excludeProposalId);
+    
+    List<Proposal> findByFreelancerId(Long freelancerId);
 }

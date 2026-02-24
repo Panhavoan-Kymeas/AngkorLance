@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.angkorlance.backend.dto.FreelancerProposalResponseDto;
 import com.angkorlance.backend.dto.ProposalAcceptanceResponseDto;
 import com.angkorlance.backend.dto.ProposalRequestDto;
 import com.angkorlance.backend.dto.ProposalResponseDto;
@@ -110,4 +111,20 @@ public class ProposalService {
 
         return new ProposalAcceptanceResponseDto(proposal.getId(), proposal.getStatus(), job.getStatus());
     }
+
+    public List<FreelancerProposalResponseDto> getFreelancerProposals(Long freelancerId) {
+
+    List<Proposal> proposals = proposalRepository.findByFreelancerId(freelancerId);
+
+    return proposals.stream()
+            .map(proposal -> new FreelancerProposalResponseDto(
+                    proposal.getId(),
+                    proposal.getJob().getId(),
+                    proposal.getJob().getTitle(),
+                    proposal.getJob().getStatus(),
+                    proposal.getProposedPrice(),
+                    proposal.getStatus()
+            ))
+            .toList();
+}
 }
