@@ -1,37 +1,33 @@
-import { useState } from "react"
-import Navbar from "../components/Navbar/Navbar"
-import Footer from "../components/Footer/Footer"
+import React from "react";
+import Navbar from "@/components/Navbar/Navbar";
+import type { NavItem, Page } from "@/types/navigation";
+import { useNavigate } from "react-router-dom";
 
-// Define pages your Navbar supports
-type Page = "home" | "jobs" | "post-job" | "login" | "signup"
-
-interface MainLayoutProps {
-  children: React.ReactNode
+interface PublicLayoutProps {
+  children: React.ReactNode;
+  pages: NavItem[];
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  // Track the currently active page
-  const [activePage, setActivePage] = useState<Page>("home")
+const PublicLayout: React.FC<PublicLayoutProps> = ({ children, pages }) => {
+  const navigate = useNavigate();
 
-  // Handle navigation from the Navbar
+  // Filter out login and signup from center tabs
+  const centerTabs = pages.filter(
+    (p) => p.key !== "login" && p.key !== "signup"
+  );
+
   const handleNavigate = (page: Page) => {
-    setActivePage(page)
-    // Optional: Add router navigation here
-    // e.g., navigate(`/${page}`)
-  }
+    const navItem = pages.find((p) => p.key === page);
+    if (navItem) navigate(navItem.path);
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Navbar at the top */}
-      <Navbar active={activePage} onNavigate={handleNavigate} />
-
-      {/* Main content */}
-      <main className="flex-1">{children}</main>
-
-      {/* Footer at the bottom */}
-      <Footer />
+    <div className="min-h-screen flex flex-col">
+      {/* Pass only filtered pages to Navbar center tabs */}
+      <Navbar pages={centerTabs} active="home" onNavigate={handleNavigate} />
+      <main className="flex-1 p-6">{children}</main>
     </div>
-  )
-}
+  );
+};
 
-export default MainLayout
+export default PublicLayout;

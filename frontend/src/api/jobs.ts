@@ -7,6 +7,8 @@ import type {
   BrowseJobsResponse,
 } from "../types/jobs";
 
+export type { Job, JobDetail, ClientJob, JobFilterPayload, BrowseJobsResponse };
+
 /**
  * Fetch open jobs for freelancers (with optional category & pagination)
  */

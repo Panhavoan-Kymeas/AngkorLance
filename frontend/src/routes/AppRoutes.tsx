@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import LandingPage from "../pages/public/LandingPage";
 import AuthRoute from "./AuthRoute";
@@ -9,20 +9,20 @@ import FreelancerRoute from "./FreelancerRoute";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public */}
+      {/* Public pages */}
       <Route path="/" element={<LandingPage />} />
 
-      {/* Auth routes */}
-      <Route path="/*" element={<AuthRoute />} />
+      {/* Auth pages */}
+      <Route path="/auth/*" element={<AuthRoute />} />
 
-      {/* Client routes */}
+      {/* Client pages */}
       <Route path="/client/*" element={<ClientRoute />} />
 
-      {/* Freelancer routes */}
+      {/* Freelancer pages */}
       <Route path="/freelancer/*" element={<FreelancerRoute />} />
 
-      {/* Fallback 404 */}
-      <Route path="*" element={<div>404 Not Found</div>} />
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

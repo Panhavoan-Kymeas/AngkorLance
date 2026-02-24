@@ -1,44 +1,58 @@
-import { useState } from "react"
-import Sidebar from "../components/Sidebar/SidebarClient"
-import Navbar from "../components/Navbar/Navbar"
-import Footer from "../components/Footer/Footer"
-
-// Define the pages your Navbar supports
-type Page = "home" | "jobs" | "post-job" | "login" | "signup"
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar/Navbar";
+import SidebarClient from "@/components/Sidebar/SidebarClient";
+import type { NavItem, Page } from "@/types/navigation";
+import type { AuthUser } from "@/types/auth";
 
 interface ClientLayoutProps {
-  children: React.ReactNode
+  children: React.ReactNode;
+  user: AuthUser;
+  pages: NavItem[];
+  initialPage?: Page;
+  onLogout: () => void;
 }
 
-const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
-  // Track the currently active page for the Navbar
-  const [activePage, setActivePage] = useState<Page>("home")
+const ClientLayout: React.FC<ClientLayoutProps> = ({
+  children,
+  user,
+  pages,
+  initialPage = "dashboard",
+  onLogout,
+}) => {
+  const [activePage, setActivePage] = useState<Page>(initialPage);
+  const navigate = useNavigate();
 
-  // Handler for navigation from Navbar
   const handleNavigate = (page: Page) => {
-    setActivePage(page)
-    // Optional: Add router navigation here if using react-router
-    // e.g., navigate(`/${page}`)
-  }
+    setActivePage(page);
+    const navItem = pages.find((p) => p.key === page);
+    if (navItem) navigate(navItem.path);
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* Sidebar visible only on dashboard */}
+      {activePage === "dashboard" && (
+        <SidebarClient
+          activePage={activePage}
+          pages={pages}
+          onNavigate={handleNavigate}
+        />
+      )}
 
-      {/* Main content area */}
       <div className="flex-1 flex flex-col">
-        {/* Navbar at the top */}
-        <Navbar active={activePage} onNavigate={handleNavigate} />
+        <Navbar
+          pages={pages}
+          active={activePage}
+          onNavigate={handleNavigate}
+          user={user}
+          onLogout={onLogout}
+        />
 
-        {/* Page content */}
         <main className="flex-1 p-6">{children}</main>
-
-        {/* Footer at the bottom */}
-        <Footer />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ClientLayout
+export default ClientLayout;

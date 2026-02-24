@@ -1,35 +1,31 @@
 import { useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Briefcase, Eye, EyeSlash } from "phosphor-react";
-
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Button } from "../../components/ui/button";
 import AuthLayout from "../../layouts/AuthLayout";
 import { useToast } from "../../hooks/use-toast";
-
 import { loginApi } from "../../api/auth";
 import type { LoginPayload } from "../../types/auth";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth(); // context to update user state
 
   const [form, setForm] = useState<LoginPayload>({
     email: "",
     password: "",
   });
 
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const update =
-    (field: keyof LoginPayload) => (e: ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({
-        ...prev,
-        [field]: e.target.value,
-      }));
-    };
+  const update = (field: keyof LoginPayload) => (e: ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
   const handleLogin = async () => {
     if (!form.email || !form.password) {
@@ -41,35 +37,37 @@ export default function LoginPage() {
       return;
     }
 
+    // optional: simple email validation
+    if (!/\S+@\S+\.\S+/.test(form.email)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
-
-      // Call API
       const res = await loginApi(form);
 
-      // Save token and user data
+      // save token + user
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data));
 
-      // Debug log inside function
-      console.log("Token:", res.data.token);
-      console.log(
-        "Navigating to:",
-        res.data.role === "FREELANCER"
-          ? "/freelancer/browse-jobs"
-          : "/client/dashboard",
-      );
+      // update context
+      login(res.data);
 
       toast({
         title: "Login Successful",
         description: `Welcome back, ${res.data.name}!`,
       });
 
-      // Redirect based on role
+      // redirect based on role
       if (res.data.role === "FREELANCER") {
-        navigate("/freelancer/browse-jobs");
+        navigate("/freelancer", { replace: true }); // go to FreelancerHomePage
       } else {
-        navigate("/client/dashboard");
+        navigate("/client", { replace: true }); // go to client homepage
       }
     } catch (error: unknown) {
       toast({
@@ -85,7 +83,6 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
-      {/* Logo */}
       <div
         className="flex items-center gap-2 mb-8 cursor-pointer justify-center"
         onClick={() => navigate("/")}
@@ -99,8 +96,13 @@ export default function LoginPage() {
         Log in to your AngkorLance account
       </p>
 
-      <div className="space-y-4">
-        {/* Email */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleLogin();
+        }}
+        className="space-y-4"
+      >
         <div>
           <Label htmlFor="email">Email</Label>
           <Input
@@ -109,10 +111,10 @@ export default function LoginPage() {
             placeholder="john@example.com"
             value={form.email}
             onChange={update("email")}
+            autoFocus
           />
         </div>
 
-        {/* Password */}
         <div>
           <Label htmlFor="password">Password</Label>
           <div className="relative">
@@ -125,6 +127,7 @@ export default function LoginPage() {
             />
             <button
               type="button"
+              aria-label={showPassword ? "Hide password" : "Show password"}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
               onClick={() => setShowPassword((prev) => !prev)}
             >
@@ -132,14 +135,12 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Login Button */}
-      <Button className="w-full mt-4" onClick={handleLogin} disabled={loading}>
-        {loading ? "Logging in..." : "Log in"}
-      </Button>
+        <Button className="w-full mt-4" type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Log in"}
+        </Button>
+      </form>
 
-      {/* Register Redirect */}
       <p className="text-center text-sm text-gray-500 mt-4">
         Don't have an account?{" "}
         <Button

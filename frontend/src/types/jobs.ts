@@ -1,4 +1,3 @@
-
 // Job as returned to freelancer in job list
 export interface Job {
   id: number;

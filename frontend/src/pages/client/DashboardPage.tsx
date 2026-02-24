@@ -1,2 +1,8 @@
-const ClientDashboard = () => <div className="p-4">Client Dashboard</div>;
-export default ClientDashboard;
+
+
+
+const ClientDashboardPage = () => {
+  <><h1>Client Dashboard</h1></>
+};
+
+export default ClientDashboardPage;

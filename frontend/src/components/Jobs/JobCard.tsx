@@ -12,8 +12,8 @@ export default function JobCard({ job }: JobCardProps) {
     COMPLETED: "bg-blue-100 text-blue-800",
   };
 
-  const imageUrl = job.jobImageUrl;
-  const status = job.status ?? "OPEN"; // Default OPEN for freelancer jobs
+  const imageUrl = job.jobImage; // <-- fixed
+  const status = job.status ?? job.status ?? "OPEN"; // fallback
 
   return (
     <div className="border rounded-xl p-4 shadow hover:shadow-md transition flex gap-4">

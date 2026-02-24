@@ -1,58 +1,48 @@
 import { Link } from "react-router-dom";
-import PublicLayout from "../../layouts/PublicLayout";
-import { publicPages } from "@/types/navigation";
-import {
-  Users,
-  MagnifyingGlass,
-  FileText,
-  CheckCircle,
-  Clock,
-  ArrowRight,
-} from "phosphor-react";
-
+import { Users, MagnifyingGlass, FileText, CheckCircle, Clock, ArrowRight } from "phosphor-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { AuthUser } from "@/types/auth";
+
+interface FreelancerHomePageProps {
+  user: AuthUser;
+}
 
 const HOW_IT_WORKS = [
   {
     icon: <FileText size={28} weight="bold" className="text-primary" />,
-    title: "Post Jobs Easily",
-    desc: "Create detailed job listings with categories, budgets, and requirements in minutes.",
+    title: "Find Projects Easily",
+    desc: "Browse and apply to projects that match your skills and interests.",
   },
   {
     icon: <CheckCircle size={28} weight="bold" className="text-primary" />,
-    title: "Receive Proposals",
-    desc: "Get tailored proposals from skilled freelancers ready to bring your vision to life.",
+    title: "Submit Proposals",
+    desc: "Send tailored proposals to clients and showcase your expertise.",
   },
   {
     icon: <Users size={28} weight="bold" className="text-primary" />,
-    title: "Choose & Collaborate",
-    desc: "Review proposals, select the best fit, and work together to complete your project.",
+    title: "Collaborate & Deliver",
+    desc: "Work with clients seamlessly and complete projects successfully.",
   },
   {
     icon: <Clock size={28} weight="bold" className="text-primary" />,
-    title: "Track Progress",
-    desc: "Monitor job status from open to in-progress to completed — all in one place.",
+    title: "Track Your Progress",
+    desc: "Monitor your active projects, deadlines, and completed work.",
   },
 ];
 
-export default function LandingPage() {
+export default function FreelancerHomePage({ user }: FreelancerHomePageProps) {
   return (
-    <PublicLayout pages={publicPages}>
+    <section className="flex-1 flex flex-col">
       {/* ================= HERO ================= */}
       <section className="relative py-28 px-6 bg-gradient-to-b from-background to-muted/40">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
-            Connect with top talent.
-            <br />
-            <span className="text-primary">
-              Get work done effortlessly.
-            </span>
+            Welcome back, <span className="text-primary">{user.name}</span>!
           </h1>
 
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            The simplest way to find freelancers and get projects completed.
-            Post jobs, receive proposals, and collaborate seamlessly.
+            Explore available jobs, submit proposals, and grow your freelance career.
           </p>
 
           {/* CTA Buttons */}
@@ -62,9 +52,9 @@ export default function LandingPage() {
               size="lg"
               className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
             >
-              <Link to="/register">
-                <Users size={18} weight="bold" />
-                Hire Talent
+              <Link to="/freelancer/browse-jobs">
+                <MagnifyingGlass size={18} weight="bold" />
+                Browse Jobs
                 <ArrowRight size={18} weight="bold" />
               </Link>
             </Button>
@@ -75,9 +65,9 @@ export default function LandingPage() {
               variant="outline"
               className="gap-2 transition-all duration-300 hover:bg-primary hover:text-white hover:-translate-y-1 hover:shadow-2xl"
             >
-              <Link to="/login">
-                <MagnifyingGlass size={18} weight="bold" />
-                Find Work
+              <Link to="/freelancer/profile">
+                <Users size={18} weight="bold" />
+                My Profile
               </Link>
             </Button>
           </div>
@@ -91,7 +81,7 @@ export default function LandingPage() {
             How It Works
           </h2>
           <p className="text-muted-foreground text-lg">
-            A simple, streamlined process to connect clients with freelancers.
+            Follow these steps to find, apply, and succeed on freelance projects.
           </p>
         </div>
 
@@ -121,12 +111,11 @@ export default function LandingPage() {
       <section className="py-28 px-6 text-center bg-gradient-to-r from-primary/10 to-primary/20">
         <div className="max-w-2xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to get started?
+            Ready to start applying?
           </h2>
 
           <p className="text-muted-foreground text-lg mb-10">
-            Join thousands of clients and freelancers already using
-            AngkorLance to collaborate and succeed.
+            Browse jobs, submit proposals, and grow your freelance career with AngkorLance.
           </p>
 
           <Button
@@ -134,13 +123,13 @@ export default function LandingPage() {
             size="lg"
             className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
           >
-            <Link to="/register">
-              Create Your Account
+            <Link to="/freelancer/browse-jobs">
+              Browse Jobs
               <ArrowRight size={18} weight="bold" />
             </Link>
           </Button>
         </div>
       </section>
-    </PublicLayout>
+    </section>
   );
 }

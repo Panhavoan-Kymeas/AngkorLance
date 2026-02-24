@@ -5,6 +5,7 @@ export interface RegisterPayload {
   email: string;
   password: string;
   role: Role;
+  
 }
 
 export interface LoginPayload {
@@ -18,10 +19,13 @@ export interface AuthUser {
   userId: number;
   name: string;
   role: Role;
+  email?: string;       
+  avatarUrl?: string; 
 }
 
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
+  errors?: Record<string, string>;
 }
