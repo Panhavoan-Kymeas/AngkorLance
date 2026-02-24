@@ -1,4 +1,4 @@
-import MainLayout from "../../layouts/PublicLayout"
+import MainLayout from "../../../layouts/PublicLayout"
 import {
   Users,
   MagnifyingGlass,
