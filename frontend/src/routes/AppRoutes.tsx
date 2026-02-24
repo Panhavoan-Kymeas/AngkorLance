@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import LandingPage from "../pages/freelancer/public/LandingPage";
+import LandingPage from "../pages/public/LandingPage";
 import Login from "../pages/auth/LoginPage";
 import Register from "../pages/auth/RegisterPage";
 
@@ -11,6 +11,8 @@ import AuthRoute from "./AuthRoute";
 
 import ClientDashboard from "../pages/client/DashboardPage";
 import FreelancerDashboard from "../pages/freelancer/DashboardPage";
+
+import BrowseJobsPage from "@/pages/freelancer/BrowseJobsPage";
 
 const AppRoutes: React.FC = () => {
   return (
@@ -33,6 +35,7 @@ const AppRoutes: React.FC = () => {
       {/* Freelancer Routes */}
       <Route element={<FreelancerRoute />}>
         <Route path="/freelancer/dashboard" element={<FreelancerDashboard />} />
+        <Route path="/browse-jobs" element={<BrowseJobsPage />} />
         {/* Add more freelancer pages here */}
       </Route>
 

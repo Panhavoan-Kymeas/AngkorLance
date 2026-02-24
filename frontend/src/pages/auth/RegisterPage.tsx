@@ -6,6 +6,7 @@ import { Label } from "../../components/ui/label";
 import { Button } from "../../components/ui/button";
 import AuthLayout from "../../layouts/AuthLayout";
 import { useToast } from "../../hooks/use-toast";
+import { registerApi } from "../../api/auth"; // <-- API call
 
 type Role = "client" | "freelancer";
 
@@ -28,11 +29,14 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const update =
-    (field: keyof FormState) => (e: ChangeEvent<HTMLInputElement>) =>
+    (field: keyof FormState) =>
+    (e: ChangeEvent<HTMLInputElement>) =>
       setForm({ ...form, [field]: e.target.value });
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (form.password !== form.confirmPassword) {
       toast({
         variant: "destructive",
@@ -43,20 +47,37 @@ export default function RegisterPage() {
       return;
     }
 
-    // TODO: Replace with actual registration API call
-    console.log("Registering user", { ...form, role });
+    setLoading(true);
 
-    toast({
-      title: "Account Created",
-      description: "Your AngkorLance account has been successfully created!",
-    });
+    try {
+      await registerApi({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: role.toUpperCase() as "CLIENT" | "FREELANCER",
+      });
 
-    navigate("/login");
+      toast({
+        title: "Account Created",
+        description: "Your AngkorLance account has been successfully created!",
+      });
+
+      navigate("/login");
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description:
+          err.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AuthLayout>
-      {/* Form Card */}
       <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
         {/* Logo */}
         <div
@@ -82,7 +103,7 @@ export default function RegisterPage() {
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder="Jane Smith"
               value={form.name}
               onChange={update("name")}
             />
@@ -93,7 +114,7 @@ export default function RegisterPage() {
             <Input
               id="email"
               type="email"
-              placeholder="john@example.com"
+              placeholder="janesmith@example.com"
               value={form.email}
               onChange={update("email")}
             />
@@ -166,8 +187,12 @@ export default function RegisterPage() {
         </div>
 
         {/* Submit Button */}
-        <Button className="w-full py-3 mb-4" onClick={handleSubmit}>
-          Create Account
+        <Button
+          className="w-full py-3 mb-4"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? "Creating Account..." : "Create Account"}
         </Button>
 
         {/* Switch to Login */}

@@ -6,26 +6,19 @@ import { Label } from "../../components/ui/label";
 import { Button } from "../../components/ui/button";
 import AuthLayout from "../../layouts/AuthLayout";
 import { useToast } from "../../hooks/use-toast";
-
-interface FormState {
-  email: string;
-  password: string;
-}
+import { loginApi, type LoginPayload } from "../../api/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [form, setForm] = useState<FormState>({ email: "", password: "" });
+  const [form, setForm] = useState<LoginPayload>({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
-  const update =
-    (field: keyof FormState) =>
-    (e: ChangeEvent<HTMLInputElement>) =>
-      setForm({ ...form, [field]: e.target.value });
+  const update = (field: keyof LoginPayload) => (e: ChangeEvent<HTMLInputElement>) =>
+    setForm({ ...form, [field]: e.target.value });
 
-  const handleLogin = () => {
-    // Dummy validation
+  const handleLogin = async () => {
     if (!form.email || !form.password) {
       toast({
         variant: "destructive",
@@ -35,15 +28,30 @@ export default function LoginPage() {
       return;
     }
 
-    // TODO: replace with actual API call
-    console.log("Logging in", form);
+    try {
+      const res = await loginApi(form);
 
-    toast({
-      title: "Login Successful",
-      description: "Welcome back to AngkorLance!",
-    });
+      // Save token
+      localStorage.setItem("token", res.data.token);
 
-    navigate("/"); // redirect after login
+      toast({
+        title: "Login Successful",
+        description: `Welcome back, ${res.data.name}!`,
+      });
+
+      // Redirect based on role
+      if (res.data.role === "FREELANCER") {
+        navigate("/freelancer/browse-jobs");
+      } else {
+        navigate("/client/dashboard");
+      }
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: "Invalid email or password.",
+      });
+    }
   };
 
   return (
@@ -57,13 +65,11 @@ export default function LoginPage() {
         <span className="text-2xl font-bold">AngkorLance</span>
       </div>
 
-      {/* Heading */}
       <h2 className="text-2xl font-bold mb-2 text-center">Welcome Back</h2>
       <p className="text-sm text-gray-500 text-center mb-6">
         Log in to your AngkorLance account
       </p>
 
-      {/* Form */}
       <div className="space-y-4">
         <div>
           <Label htmlFor="email">Email</Label>
@@ -97,12 +103,10 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Submit */}
       <Button className="w-full mt-4" onClick={handleLogin}>
         Log in
       </Button>
 
-      {/* Switch to Register */}
       <p className="text-center text-sm text-gray-500 mt-4">
         Don't have an account?{" "}
         <Button
