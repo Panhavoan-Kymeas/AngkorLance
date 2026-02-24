@@ -1,22 +1,35 @@
 import { useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { Briefcase, Eye, EyeSlash } from "phosphor-react";
+
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Button } from "../../components/ui/button";
 import AuthLayout from "../../layouts/AuthLayout";
 import { useToast } from "../../hooks/use-toast";
-import { loginApi, type LoginPayload } from "../../api/auth";
+
+import { loginApi } from "../../api/auth";
+import type { LoginPayload } from "../../types/auth";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [form, setForm] = useState<LoginPayload>({ email: "", password: "" });
-  const [showPassword, setShowPassword] = useState(false);
+  const [form, setForm] = useState<LoginPayload>({
+    email: "",
+    password: "",
+  });
 
-  const update = (field: keyof LoginPayload) => (e: ChangeEvent<HTMLInputElement>) =>
-    setForm({ ...form, [field]: e.target.value });
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const update =
+    (field: keyof LoginPayload) => (e: ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+    };
 
   const handleLogin = async () => {
     if (!form.email || !form.password) {
@@ -29,10 +42,23 @@ export default function LoginPage() {
     }
 
     try {
+      setLoading(true);
+
+      // Call API
       const res = await loginApi(form);
 
-      // Save token
+      // Save token and user data
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data));
+
+      // Debug log inside function
+      console.log("Token:", res.data.token);
+      console.log(
+        "Navigating to:",
+        res.data.role === "FREELANCER"
+          ? "/freelancer/browse-jobs"
+          : "/client/dashboard",
+      );
 
       toast({
         title: "Login Successful",
@@ -45,12 +71,15 @@ export default function LoginPage() {
       } else {
         navigate("/client/dashboard");
       }
-    } catch (err) {
+    } catch (error: unknown) {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Invalid email or password.",
+        description:
+          error instanceof Error ? error.message : "Invalid email or password.",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,6 +100,7 @@ export default function LoginPage() {
       </p>
 
       <div className="space-y-4">
+        {/* Email */}
         <div>
           <Label htmlFor="email">Email</Label>
           <Input
@@ -82,6 +112,7 @@ export default function LoginPage() {
           />
         </div>
 
+        {/* Password */}
         <div>
           <Label htmlFor="password">Password</Label>
           <div className="relative">
@@ -95,7 +126,7 @@ export default function LoginPage() {
             <button
               type="button"
               className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
             </button>
@@ -103,10 +134,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <Button className="w-full mt-4" onClick={handleLogin}>
-        Log in
+      {/* Login Button */}
+      <Button className="w-full mt-4" onClick={handleLogin} disabled={loading}>
+        {loading ? "Logging in..." : "Log in"}
       </Button>
 
+      {/* Register Redirect */}
       <p className="text-center text-sm text-gray-500 mt-4">
         Don't have an account?{" "}
         <Button

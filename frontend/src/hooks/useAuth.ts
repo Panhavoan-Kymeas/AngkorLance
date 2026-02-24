@@ -1,15 +1,31 @@
+// src/hooks/useAuth.ts
 import { useState } from "react";
 
-{/*
-  
-  export const useAuth = () => {
-  const [user] = useState({ role: "CLIENT", name: "John Doe" }); // mock user
-  return { user, isAuthenticated: !!user };
-};
-
-*/}
+export interface AuthUser {
+  userId: number;
+  name: string;
+  role: "CLIENT" | "FREELANCER";
+  token: string;
+}
 
 export const useAuth = () => {
-  const [user] = useState<{ role: string; name: string } | null>(null); // not logged in
-  return { user, isAuthenticated: !!user };
+  // Lazy initial state: read from localStorage only once
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    const stored = localStorage.getItem("user");
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored) as AuthUser;
+    } catch {
+      localStorage.removeItem("user");
+      return null;
+    }
+  });
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
+  return { user, setUser, logout };
 };

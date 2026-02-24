@@ -1,51 +1,80 @@
 import api from "./api";
-
-// --- Types ---
-export type JobStatus = "OPEN" | "CLOSED" | "IN_PROGRESS" | "COMPLETED";
-
-export interface Job {
-  id: number;
-  title: string;
-  category: string;
-  budget: number;
-  clientName: string;
-  jobImage?: string | null;
-  status: JobStatus;
-}
-
-export interface JobFilterPayload {
-  search?: string;
-  category?: string;
-  status?: JobStatus | "";
-  page?: number;
-  size?: number;
-}
-
-// --- API Functions ---
+import type {
+  Job,
+  JobDetail,
+  ClientJob,
+  JobFilterPayload,
+  BrowseJobsResponse,
+} from "../types/jobs";
 
 /**
- * Fetch jobs for freelancers with optional filters
- * @param filters - filter options like search, category, status, pagination
+ * Fetch open jobs for freelancers (with optional category & pagination)
  */
-export const fetchJobsApi = async (filters: JobFilterPayload = {}): Promise<Job[]> => {
-  const params: Record<string, string | number> = {
-    search: filters.search || "",
-    category: filters.category || "",
-    status: filters.status || "",
-    page: filters.page ?? 0,
-    size: filters.size ?? 20,
-  };
+export const fetchOpenJobsApi = async (
+  filters: JobFilterPayload
+): Promise<BrowseJobsResponse> => {
+  const params: Record<string, string | number> = {};
 
-  // Backend endpoint returns { data: Job[] } for consistency
-  const res = await api.get<{ data: Job[] }>("/jobs/open", { params });
-  return res.data.data;
+  if (filters.page !== undefined) params.page = filters.page;
+  if (filters.size !== undefined) params.size = filters.size;
+  if (filters.category) params.category = filters.category;
+  if (filters.search) params.search = filters.search;
+  if (filters.status) params.status = filters.status;
+
+  const res = await api.get<BrowseJobsResponse>("/jobs/open", { params });
+  return res.data;
 };
 
 /**
- * Fetch job detail by ID
- * @param jobId - ID of the job
+ * Fetch a single job detail
  */
-export const fetchJobDetailApi = async (jobId: number): Promise<Job> => {
-  const res = await api.get<{ data: Job }>(`/jobs/${jobId}`);
-  return res.data.data;
+export const fetchJobDetailApi = async (jobId: number): Promise<JobDetail> => {
+  const res = await api.get<JobDetail>(`/jobs/${jobId}`);
+  return res.data;
+};
+
+/**
+ * Fetch current client's jobs
+ */
+export const fetchMyJobsApi = async (): Promise<ClientJob[]> => {
+  const res = await api.get<ClientJob[]>("/jobs/my-jobs");
+  return res.data;
+};
+
+/**
+ * Create a new job (multipart/form-data)
+ */
+export const createJobApi = async (data: FormData): Promise<number> => {
+  const res = await api.post<number>("/jobs", data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+/**
+ * Update a job
+ */
+export const updateJobApi = async (
+  jobId: number,
+  data: Partial<Job>
+): Promise<ClientJob> => {
+  const res = await api.patch<ClientJob>(`/jobs/${jobId}`, data);
+  return res.data;
+};
+
+/**
+ * Delete a job
+ */
+export const deleteJobApi = async (jobId: number): Promise<void> => {
+  await api.delete(`/jobs/${jobId}`);
+};
+
+/**
+ * Complete a job
+ */
+export const completeJobApi = async (
+  jobId: number
+): Promise<{ id: number; status: string }> => {
+  const res = await api.post<{ id: number; status: string }>(`/jobs/${jobId}/complete`);
+  return res.data;
 };

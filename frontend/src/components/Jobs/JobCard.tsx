@@ -1,7 +1,7 @@
 import type { Job } from "../../api/jobs";
 
 interface JobCardProps {
-  job: Job;
+  job: Job & { status?: string };
 }
 
 export default function JobCard({ job }: JobCardProps) {
@@ -12,11 +12,14 @@ export default function JobCard({ job }: JobCardProps) {
     COMPLETED: "bg-blue-100 text-blue-800",
   };
 
+  const imageUrl = job.jobImageUrl;
+  const status = job.status ?? "OPEN"; // Default OPEN for freelancer jobs
+
   return (
     <div className="border rounded-xl p-4 shadow hover:shadow-md transition flex gap-4">
-      {job.jobImage && (
+      {imageUrl && (
         <img
-          src={job.jobImage}
+          src={imageUrl}
           alt={job.title}
           className="w-24 h-24 object-cover rounded-lg"
         />
@@ -24,8 +27,12 @@ export default function JobCard({ job }: JobCardProps) {
       <div className="flex-1">
         <div className="flex justify-between items-start">
           <h3 className="font-semibold text-lg">{job.title}</h3>
-          <span className={`px-2 py-1 text-xs font-semibold rounded ${statusColors[job.status]}`}>
-            {job.status}
+          <span
+            className={`px-2 py-1 text-xs font-semibold rounded ${
+              statusColors[status] || "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {status}
           </span>
         </div>
         <p className="text-gray-500">{job.category}</p>
