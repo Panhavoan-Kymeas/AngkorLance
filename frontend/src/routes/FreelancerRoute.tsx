@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/useAuth";
 import FreelancerLayout from "@/layouts/FreelancerLayout";
 import FreelancerHomePage from "../pages/freelancer/FreelancerHomePage";
 import FreelancerDashboardPage from "../pages/freelancer/DashboardPage";
+import JobDetailPage from "@/pages/freelancer/JobDetailPage";
 import BrowseJobsPage from "@/pages/freelancer/BrowseJobsPage";
 import { freelancerPages } from "@/types/navigation";
 import type { AuthUser } from "../types/auth";
@@ -28,6 +29,7 @@ const FreelancerRoute: React.FC = () => {
         {/* Other pages */}
         <Route path="dashboard" element={<FreelancerDashboardPage user={user as AuthUser} logout={logout} />} />
         <Route path="browse-jobs" element={<BrowseJobsPage />} />
+        <Route path="jobs/:jobId" element={<JobDetailPage />} />
         <Route path="profile" element={<div>Profile Page</div>} />
 
         {/* Catch-all redirects to homepage */}

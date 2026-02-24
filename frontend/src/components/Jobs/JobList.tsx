@@ -5,9 +5,10 @@ import { JobCardSkeleton } from "./JobCardSkeleton";
 interface JobListProps {
   jobs: Job[];
   loading: boolean;
+  onJobClick?: (jobId: number) => void;
 }
 
-export default function JobList({ jobs, loading }: JobListProps) {
+export default function JobList({ jobs, loading, onJobClick }: JobListProps) {
   if (loading) {
     // Show 5 skeletons while loading
     return (
@@ -25,8 +26,12 @@ export default function JobList({ jobs, loading }: JobListProps) {
 
   return (
     <div className="space-y-4">
-      {jobs.map(job => (
-        <JobCard key={job.id} job={job} />
+      {jobs.map((job) => (
+        <JobCard
+          key={job.id}
+          job={job}
+          onClick={() => onJobClick?.(job.id)} 
+        />
       ))}
     </div>
   );

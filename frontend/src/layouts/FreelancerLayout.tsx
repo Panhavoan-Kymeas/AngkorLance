@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import type { NavItem, Page } from "@/types/navigation";
 import Navbar from "@/components/Navbar/Navbar";
+import Footer from "@/components/Footer/Footer";
 import type { AuthUser } from "@/types/auth";
 
 interface FreelancerLayoutProps {
@@ -19,17 +20,14 @@ const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
   onLogout,
   initialPage = "home",
 }) => {
-  const [activePage, setActivePage] = useState<Page>(initialPage);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Sync active page with current URL
-  useEffect(() => {
-    const matched = pages.find((p) => p.path === location.pathname);
-    if (matched) {
-      setActivePage(matched.key);
-    }
-  }, [location.pathname, pages]);
+  // Initialize active page based on current URL
+  const initialActivePage =
+    pages.find((p) => p.path === location.pathname)?.key ?? initialPage;
+
+  const [activePage, setActivePage] = useState<Page>(initialActivePage);
 
   const handleNavigate = (page: Page) => {
     setActivePage(page);
@@ -52,9 +50,7 @@ const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
       <main className="flex-1 p-6 max-w-7xl mx-auto w-full">{children}</main>
 
       {/* Footer */}
-      <footer className="w-full border-t bg-white text-center py-4 text-sm text-gray-500">
-        &copy; {new Date().getFullYear()} AngkorLance. All rights reserved.
-      </footer>
+      <Footer />
     </div>
   );
 };

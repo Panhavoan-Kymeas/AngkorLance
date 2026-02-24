@@ -1,5 +1,6 @@
 import React from "react";
 import Navbar from "@/components/Navbar/Navbar";
+import Footer from "@/components/Footer/Footer";
 import type { NavItem, Page } from "@/types/navigation";
 import { useNavigate } from "react-router-dom";
 
@@ -26,6 +27,7 @@ const PublicLayout: React.FC<PublicLayoutProps> = ({ children, pages }) => {
       {/* Pass only filtered pages to Navbar center tabs */}
       <Navbar pages={centerTabs} active="home" onNavigate={handleNavigate} />
       <main className="flex-1 p-6">{children}</main>
+      <Footer />
     </div>
   );
 };

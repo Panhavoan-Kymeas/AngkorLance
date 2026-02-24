@@ -2,9 +2,10 @@ import type { Job } from "../../api/jobs";
 
 interface JobCardProps {
   job: Job & { status?: string };
+  onClick?: () => void; 
 }
 
-export default function JobCard({ job }: JobCardProps) {
+export default function JobCard({ job, onClick }: JobCardProps) {
   const statusColors: Record<string, string> = {
     OPEN: "bg-green-100 text-green-800",
     CLOSED: "bg-red-100 text-red-800",
@@ -12,11 +13,14 @@ export default function JobCard({ job }: JobCardProps) {
     COMPLETED: "bg-blue-100 text-blue-800",
   };
 
-  const imageUrl = job.jobImage; // <-- fixed
-  const status = job.status ?? job.status ?? "OPEN"; // fallback
+  const imageUrl = job.jobImage;
+  const status = job.status ?? "OPEN"; // fallback if undefined
 
   return (
-    <div className="border rounded-xl p-4 shadow hover:shadow-md transition flex gap-4">
+    <div
+      className="border rounded-xl p-4 shadow hover:shadow-md transition flex gap-4 cursor-pointer"
+      onClick={onClick} 
+    >
       {imageUrl && (
         <img
           src={imageUrl}
