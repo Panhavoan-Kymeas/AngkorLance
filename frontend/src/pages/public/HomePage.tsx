@@ -1,3 +1,4 @@
+// src/pages/LandingPage.tsx
 import MainLayout from "../../layouts/PublicLayout"
 import {
   Users,
