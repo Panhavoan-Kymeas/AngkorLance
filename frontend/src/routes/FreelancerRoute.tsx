@@ -8,6 +8,7 @@ import JobDetailPage from "@/pages/freelancer/JobDetailPage";
 import BrowseJobsPage from "@/pages/freelancer/BrowseJobsPage";
 import { freelancerPages } from "@/types/navigation";
 import type { AuthUser } from "../types/auth";
+import ProfilePage from "@/pages/freelancer/ProfilePage";
 
 const FreelancerRoute: React.FC = () => {
   const { user, logout } = useAuth();
@@ -30,7 +31,7 @@ const FreelancerRoute: React.FC = () => {
         <Route path="dashboard" element={<FreelancerDashboardPage user={user as AuthUser} logout={logout} />} />
         <Route path="browse-jobs" element={<BrowseJobsPage />} />
         <Route path="jobs/:jobId" element={<JobDetailPage />} />
-        <Route path="profile" element={<div>Profile Page</div>} />
+        <Route path="profile" element={<ProfilePage />} />
 
         {/* Catch-all redirects to homepage */}
         <Route path="*" element={<Navigate to="/freelancer" replace />} />
