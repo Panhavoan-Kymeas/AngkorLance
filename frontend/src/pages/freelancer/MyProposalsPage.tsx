@@ -28,13 +28,13 @@ const MyProposalsPage: React.FC = () => {
   const getJobBadgeVariant = (status: JobStatus) => {
     switch (status) {
       case "OPEN":
-        return "outline"; // blue outline
+        return "outline"; 
       case "IN_PROGRESS":
-        return "default"; // neutral
+        return "default"; 
       case "COMPLETED":
-        return "secondary"; // gray
+        return "secondary";
       case "CANCELLED":
-        return "destructive"; // red
+        return "destructive";
     }
   };
 
@@ -126,7 +126,7 @@ const MyProposalsPage: React.FC = () => {
         <Button
           size="lg"
           variant="default"
-          onClick={() => navigate("/jobs/open")}
+          onClick={() => navigate("/freelancer/browse-jobs")}
           className="px-8"
         >
           Browse More Jobs

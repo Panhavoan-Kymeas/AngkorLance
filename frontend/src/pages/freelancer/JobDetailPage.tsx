@@ -85,9 +85,11 @@ const JobDetailPage: React.FC = () => {
       setApplyOpen(false);
       setProposalMessage("");
       setProposedPrice("");
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Extract backend error message
-      const errorResponse = err?.response?.data;
+      const errorResponse = err && typeof err === 'object' && 'response' in err 
+        ? (err as { response?: { data?: { data?: { error?: string }; message?: string } } }).response?.data 
+        : null;
       const errorMessage =
         errorResponse?.data?.error || errorResponse?.message || "Something went wrong";
 
