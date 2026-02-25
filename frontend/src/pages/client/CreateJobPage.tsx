@@ -40,7 +40,7 @@ export default function CreateJobPage() {
       const newJob = await createJobApi(formData);
       toast({ title: "Success", description: "Job created successfully." });
       console.log("Job created at:", newJob.createdAt); 
-      navigate("/client/dashboard");
+      navigate("/client/jobs");
     } catch (err) {
       console.error(err);
       toast({ title: "Error", description: "Failed to create job." });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +27,7 @@ export default function EditJobPage() {
   const [jobImage, setJobImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string>("");
 
-  // Load job detail
+  // Load job details
   useEffect(() => {
     const loadJob = async () => {
       setLoading(true);
@@ -38,7 +38,7 @@ export default function EditJobPage() {
         setDescription(data.description);
         setCategory(data.category);
         setBudget(data.budget.toString());
-        setDeadline(data.createdAt?.split("T")[0] ?? ""); // default to createdAt if deadline not set
+        setDeadline(data.deadline?.split("T")[0] ?? "");
         setPreviewImage(data.jobImage ?? "");
       } catch (err) {
         console.error(err);
@@ -50,7 +50,7 @@ export default function EditJobPage() {
     loadJob();
   }, [id, toast]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setJobImage(file);
@@ -67,15 +67,12 @@ export default function EditJobPage() {
 
     setActionLoading(true);
     try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("category", category);
-      formData.append("budget", budget);
-      if (deadline) formData.append("deadline", deadline);
-      if (jobImage) formData.append("jobImage", jobImage);
-
-      await updateJobApi(Number(id), formData as any); // backend expects FormData
+      await updateJobApi(Number(id), {
+        title,
+        description,
+        category,
+        budget: Number(budget),
+      });
       toast({ title: "Success", description: "Job updated successfully." });
       navigate(`/client/jobs/${id}`);
     } catch (err) {
@@ -86,8 +83,8 @@ export default function EditJobPage() {
     }
   };
 
-  if (loading) return <div className="text-center py-20 text-lg text-muted-foreground">Loading job...</div>;
-  if (!job) return <div className="text-center py-20 text-lg text-muted-foreground">Job not found.</div>;
+  if (loading) return <div className="text-center py-20 text-muted-foreground">Loading job...</div>;
+  if (!job) return <div className="text-center py-20 text-muted-foreground">Job not found.</div>;
 
   return (
     <section className="max-w-3xl mx-auto py-20 px-6 space-y-10">
