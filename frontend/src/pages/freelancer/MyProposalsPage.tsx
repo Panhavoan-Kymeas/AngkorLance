@@ -74,7 +74,7 @@ const MyProposalsPage: React.FC = () => {
         <Button
           size="lg"
           variant="default"
-          onClick={() => navigate("/jobs/open")}
+          onClick={() => navigate("/freelancer/jobs/open")}
         >
           Browse Available Jobs
         </Button>
@@ -95,7 +95,7 @@ const MyProposalsPage: React.FC = () => {
               <Button
                 variant="link"
                 className="text-xl font-semibold p-0 text-gray-900 hover:text-blue-600 transition"
-                onClick={() => navigate(`/jobs/${proposal.jobId}`)}
+                onClick={() => navigate(`/freelancer/proposals/${proposal.proposalId}`)}
               >
                 {proposal.jobTitle}
               </Button>

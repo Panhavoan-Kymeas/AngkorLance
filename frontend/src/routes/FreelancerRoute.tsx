@@ -10,6 +10,7 @@ import MyProposalPage from "@/pages/freelancer/MyProposalsPage";
 import { freelancerPages } from "@/types/navigation";
 import type { AuthUser } from "../types/auth";
 import ProfilePage from "@/pages/freelancer/ProfilePage";
+import FreelancerProposalDetailPage from "@/pages/freelancer/ProposalDetailPage";
 
 const FreelancerRoute: React.FC = () => {
   const { user, logout } = useAuth();
@@ -38,8 +39,14 @@ const FreelancerRoute: React.FC = () => {
         <Route path="browse-jobs" element={<BrowseJobsPage />} />
         <Route path="jobs/:jobId" element={<JobDetailPage />} />
         <Route path="/proposals" element={<MyProposalPage />} />
-
-        <Route path="profile" element={<ProfilePage user={user as AuthUser} />} />
+        <Route
+          path="/proposals/:proposalId"
+          element={<FreelancerProposalDetailPage />}
+        />
+        <Route
+          path="profile"
+          element={<ProfilePage user={user as AuthUser} />}
+        />
 
         {/* Catch-all redirects to homepage */}
         <Route path="*" element={<Navigate to="/freelancer" replace />} />
