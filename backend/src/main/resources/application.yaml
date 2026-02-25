@@ -26,4 +26,4 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS}
 
 file:
-  upload-dir: uploads
+  upload-dir: ${UPLOAD_DIR:/var/www/images}
