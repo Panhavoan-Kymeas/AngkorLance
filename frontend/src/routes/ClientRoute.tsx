@@ -12,6 +12,7 @@ import MyJobsPage from "@/pages/client/MyJobsPage";
 import CreateJobPage from "@/pages/client/CreateJobPage";
 import JobDetailPage from "@/pages/client/JobDetailPage";
 import ProfilePage from "@/pages/client/ProfilePage";
+import EditJobPage from "@/pages/client/EditJobPage";
 
 const ClientRoute: React.FC = () => {
   const { user, logout } = useAuth();
@@ -35,7 +36,9 @@ const ClientRoute: React.FC = () => {
         <Route path="jobs" element={<MyJobsPage />} />
         <Route path="jobs/create" element={<CreateJobPage />} />
         <Route path="jobs/:id" element={<JobDetailPage />} />
+        <Route path="/jobs/:id/edit" element={<EditJobPage />} /> {/* Edit route */}
         <Route path="profile" element={<ProfilePage />} />
+
 
         {/* Catch-all redirect to ClientHomePage */}
         <Route path="*" element={<Navigate to="/client" replace />} />

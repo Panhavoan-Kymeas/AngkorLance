@@ -4,6 +4,7 @@ export type Page =
   | "post-job"
   | "my-jobs"
   | "job-detail"
+  | "edit_job"
   | "proposals"
   | "login"
   | "signup"
@@ -40,7 +41,8 @@ export const clientPages: NavItem[] = [
   { key: "dashboard", label: "Dashboard", path: "/client/dashboard" },
   { key: "post-job", label: "Post Job", path: "/client/jobs/create" },
   { key: "my-jobs", label: "My Jobs", path: "/client/jobs" },
-  { key: "job-detail", label: "Job Detail", path: "/client/jobs/:id" }, 
+  { key: "job-detail", label: "Job Detail", path: "/client/jobs/:id" },
   { key: "proposals", label: "Proposals", path: "/client/proposals" },
+  { key: "edit_job", label: "Edit Job", path: "/client/jobs/:id/edit"},
   { key: "profile", label: "Profile", path: "/client/profile" },
 ];

@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import type { JobStatus, ProposalResponse, ProposalStatus } from "@/types/proposal";
-import { fetchJobDetailApi } from "@/api/jobs";
-import { getJobProposalsApi, acceptProposalApi, rejectProposalApi } from "@/api/proposals";
+import {
+  fetchJobDetailApi,
+} from "@/api/jobs";
+import {
+  getJobProposalsApi,
+  acceptProposalApi,
+  rejectProposalApi,
+} from "@/api/proposals";
+import { completeJobApi, deleteJobApi } from "@/api/jobs";
 
 export default function ClientJobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,8 +37,9 @@ export default function ClientJobDetailPage() {
   const [proposals, setProposals] = useState<ProposalResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [completeLoading, setCompleteLoading] = useState(false);
 
-  // Load job and proposals
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -47,7 +58,6 @@ export default function ClientJobDetailPage() {
     loadData();
   }, [id, toast]);
 
-  // Badge variants
   const getJobStatusVariant = (status: JobStatus) => {
     switch (status) {
       case "OPEN": return "outline";
@@ -67,7 +77,6 @@ export default function ClientJobDetailPage() {
     }
   };
 
-  // Accept a proposal
   const handleAccept = async (proposalId: number) => {
     if (!job) return;
     setActionLoading(true);
@@ -90,7 +99,6 @@ export default function ClientJobDetailPage() {
     }
   };
 
-  // Reject a proposal
   const handleReject = async (proposalId: number) => {
     setActionLoading(true);
     try {
@@ -108,6 +116,39 @@ export default function ClientJobDetailPage() {
       toast({ title: "Error", description: "Failed to reject proposal." });
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleCompleteJob = async () => {
+    if (!job) return;
+    setCompleteLoading(true);
+    try {
+      const res = await completeJobApi(job.id);
+      setJob({ ...job, status: res.status as JobStatus });
+      toast({ title: "Success", description: "Job marked as completed." });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error", description: "Failed to complete job." });
+    } finally {
+      setCompleteLoading(false);
+    }
+  };
+
+  const handleDeleteJob = async () => {
+    if (!job) return;
+    const confirmed = window.confirm("Are you sure you want to delete this job?");
+    if (!confirmed) return;
+
+    setDeleteLoading(true);
+    try {
+      await deleteJobApi(job.id);
+      toast({ title: "Success", description: "Job deleted successfully." });
+      navigate("/client/jobs");
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error", description: "Failed to delete job." });
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -136,8 +177,27 @@ export default function ClientJobDetailPage() {
             <Badge variant="outline">Budget: ${job.budget}</Badge>
             <Badge variant="outline">Created: {new Date(job.createdAt).toLocaleDateString()}</Badge>
           </div>
+
+          {/* Action Buttons */}
           <div className="mt-4 flex gap-4 flex-wrap">
             <Button onClick={() => navigate("/client/jobs")}>Back to My Jobs</Button>
+            {job.status === "OPEN" && (
+              <>
+                <Button onClick={() => navigate(`/client/jobs/${job.id}/edit`)}>Edit Job</Button>
+                <Button variant="destructive" onClick={handleDeleteJob} disabled={deleteLoading}>
+                  {deleteLoading ? "Deleting..." : "Delete Job"}
+                </Button>
+              </>
+            )}
+            {job.status !== "COMPLETED" && job.status !== "CANCELLED" && (
+              <Button
+                variant="secondary"
+                onClick={handleCompleteJob}
+                disabled={completeLoading}
+              >
+                {completeLoading ? "Completing..." : "Mark as Completed"}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -156,7 +216,12 @@ export default function ClientJobDetailPage() {
               >
                 <CardContent className="flex-1 p-4 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold">{p.freelancerName}</h3>
+                    <h3
+                      className="text-lg font-semibold cursor-pointer hover:underline"
+                      onClick={() => navigate(`/freelancer/${p.freelancerId}`)}
+                    >
+                      {p.freelancerName}
+                    </h3>
                     <p className="text-muted-foreground text-sm mb-2">{p.message}</p>
                     <div className="flex flex-wrap gap-2">
                       <Badge variant={getProposalStatusVariant(p.status)}>{p.status}</Badge>
