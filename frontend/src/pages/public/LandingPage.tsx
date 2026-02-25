@@ -62,7 +62,7 @@ export default function LandingPage() {
               size="lg"
               className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
             >
-              <Link to="/register">
+              <Link to="/auth/register">
                 <Users size={18} weight="bold" />
                 Hire Talent
                 <ArrowRight size={18} weight="bold" />
@@ -75,7 +75,7 @@ export default function LandingPage() {
               variant="outline"
               className="gap-2 transition-all duration-300 hover:bg-primary hover:text-white hover:-translate-y-1 hover:shadow-2xl"
             >
-              <Link to="/login">
+              <Link to="/auth/login">
                 <MagnifyingGlass size={18} weight="bold" />
                 Find Work
               </Link>
@@ -134,7 +134,7 @@ export default function LandingPage() {
             size="lg"
             className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
           >
-            <Link to="/register">
+            <Link to="/auth/register">
               Create Your Account
               <ArrowRight size={18} weight="bold" />
             </Link>
