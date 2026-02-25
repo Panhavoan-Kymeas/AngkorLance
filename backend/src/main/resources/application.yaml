@@ -24,3 +24,6 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
   expiration-ms: ${JWT_EXPIRATION_MS}
+
+file:
+  upload-dir: uploads
