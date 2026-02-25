@@ -17,6 +17,7 @@ export interface AuthUser {
   token: string;
   expiresAt: number;
   userId: number;
+  id: number;
   name: string;
   role: Role;
   email?: string;       

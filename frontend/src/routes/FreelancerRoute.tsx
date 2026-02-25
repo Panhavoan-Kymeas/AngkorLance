@@ -39,7 +39,7 @@ const FreelancerRoute: React.FC = () => {
         <Route path="jobs/:jobId" element={<JobDetailPage />} />
         <Route path="/proposals" element={<MyProposalPage />} />
 
-        <Route path="profile" element={<ProfilePage />} />
+        <Route path="profile" element={<ProfilePage user={user as AuthUser} />} />
 
         {/* Catch-all redirects to homepage */}
         <Route path="*" element={<Navigate to="/freelancer" replace />} />
