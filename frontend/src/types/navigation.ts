@@ -6,6 +6,7 @@ export type Page =
   | "signup"
   | "dashboard"
   | "browse-jobs"
+  | "my-proposals"
   | "profile";
 
 export interface NavItem {
@@ -27,6 +28,7 @@ export const freelancerPages: NavItem[] = [
   { key: "home", label: "Home", path: "/freelancer" },
   { key: "dashboard", label: "Dashboard", path: "/freelancer/dashboard" },
   { key: "browse-jobs", label: "Browse Jobs", path: "/freelancer/browse-jobs" },
+  { key: "my-proposals", label: "My Proposals", path: "/freelancer/proposals" },
   { key: "profile", label: "Profile", path: "/freelancer/profile" },
 ];
 

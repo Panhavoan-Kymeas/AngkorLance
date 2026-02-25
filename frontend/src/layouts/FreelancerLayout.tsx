@@ -23,6 +23,11 @@ const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Filter pages for center tabs (exclude some keys)
+  const centerTabs = pages.filter(
+    (p) => p.key !== "home" && p.key !== "dashboard" && p.key !== "profile"
+  );
+
   // Initialize active page based on current URL
   const initialActivePage =
     pages.find((p) => p.path === location.pathname)?.key ?? initialPage;
@@ -39,7 +44,7 @@ const FreelancerLayout: React.FC<FreelancerLayoutProps> = ({
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Navbar */}
       <Navbar
-        pages={pages}
+        pages={centerTabs}
         active={activePage}
         onNavigate={handleNavigate}
         user={user}
