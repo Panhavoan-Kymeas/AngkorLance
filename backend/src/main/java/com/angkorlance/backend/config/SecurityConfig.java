@@ -1,7 +1,11 @@
 package com.angkorlance.backend.config;
 
+<<<<<<< HEAD
 import java.util.List;
 
+=======
+import com.angkorlance.backend.security.JwtAuthenticationFilter;
+>>>>>>> experiment/frontend-feature
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.angkorlance.backend.security.JwtAuthenticationFilter;
+import java.util.List;
 
 @Configuration
 public class SecurityConfig {
@@ -66,6 +70,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+<<<<<<< HEAD
                 .cors(cors -> {
                 }) // apply corsConfigurationSource
                 .csrf(csrf -> csrf.disable())
@@ -84,6 +89,24 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 // JWT filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+=======
+            .cors(cors -> {}) // apply corsConfigurationSource
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // Public endpoints
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/jobs/open").permitAll()
+
+                // Allow preflight OPTIONS requests
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                // Authenticated endpoints
+                .anyRequest().authenticated()
+            )
+            // JWT filter
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+>>>>>>> experiment/frontend-feature
 
         return http.build();
     }
