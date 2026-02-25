@@ -23,6 +23,11 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Filter pages for center tabs (exclude some keys)
+  const centerTabs = pages.filter(
+    (p) => p.key !== "home" && p.key !== "dashboard" && p.key !== "profile" && p.key !== "edit_job" && p.key !== "job-detail"
+  );
+
   // Determine the initial active page from URL or default
   const initialActivePage =
     pages.find((p) => p.path === location.pathname)?.key ?? initialPage;
@@ -39,7 +44,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({
     <div className="flex flex-col min-h-screen bg-gray-100">
       {/* Navbar */}
       <Navbar
-        pages={pages}
+        pages={centerTabs}
         active={activePage}
         onNavigate={handleNavigate}
         user={user}
