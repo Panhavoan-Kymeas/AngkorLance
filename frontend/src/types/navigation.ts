@@ -22,7 +22,7 @@ export interface NavItem {
 // Public pages
 export const publicPages: NavItem[] = [
   { key: "home", label: "Home", path: "/" },
-  { key: "jobs", label: "Browse Jobs", path: "/jobs" },
+  { key: "jobs", label: "Browse Jobs", path: "/freelancer/jobs" },
   { key: "login", label: "Log in", path: "/auth/login" },
   { key: "signup", label: "Sign Up", path: "/auth/register" },
 ];
