@@ -38,7 +38,7 @@ export const freelancerPages: NavItem[] = [
 // Client pages
 export const clientPages: NavItem[] = [
   { key: "dashboard", label: "Dashboard", path: "/client/dashboard" },
-  { key: "post-job", label: "Post Job", path: "/client/post-job" },
+  { key: "post-job", label: "Post Job", path: "/client/jobs/create" },
   { key: "my-jobs", label: "My Jobs", path: "/client/jobs" },
   { key: "job-detail", label: "Job Detail", path: "/client/jobs/:id" }, 
   { key: "proposals", label: "Proposals", path: "/client/proposals" },
