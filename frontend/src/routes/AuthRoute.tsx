@@ -12,7 +12,7 @@ const AuthRoute: React.FC = () => {
   if (user) {
     const redirectPath =
       user.role === "CLIENT"
-        ? "/client/dashboard"
+        ? "/client/"
         : user.role === "FREELANCER"
         ? "/freelancer" 
         : "/";

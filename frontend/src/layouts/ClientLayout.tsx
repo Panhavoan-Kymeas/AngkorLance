@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar/Navbar";
-import SidebarClient from "@/components/Sidebar/SidebarClient";
+import Footer from "@/components/Footer/Footer";
 import type { NavItem, Page } from "@/types/navigation";
 import type { AuthUser } from "@/types/auth";
 
@@ -20,8 +20,14 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({
   initialPage = "dashboard",
   onLogout,
 }) => {
-  const [activePage, setActivePage] = useState<Page>(initialPage);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine the initial active page from URL or default
+  const initialActivePage =
+    pages.find((p) => p.path === location.pathname)?.key ?? initialPage;
+
+  const [activePage, setActivePage] = useState<Page>(initialActivePage);
 
   const handleNavigate = (page: Page) => {
     setActivePage(page);
@@ -30,27 +36,21 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar visible only on dashboard */}
-      {activePage === "dashboard" && (
-        <SidebarClient
-          activePage={activePage}
-          pages={pages}
-          onNavigate={handleNavigate}
-        />
-      )}
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      {/* Navbar */}
+      <Navbar
+        pages={pages}
+        active={activePage}
+        onNavigate={handleNavigate}
+        user={user}
+        onLogout={onLogout}
+      />
 
-      <div className="flex-1 flex flex-col">
-        <Navbar
-          pages={pages}
-          active={activePage}
-          onNavigate={handleNavigate}
-          user={user}
-          onLogout={onLogout}
-        />
+      {/* Main content */}
+      <main className="flex-1 p-6 max-w-7xl mx-auto w-full">{children}</main>
 
-        <main className="flex-1 p-6">{children}</main>
-      </div>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

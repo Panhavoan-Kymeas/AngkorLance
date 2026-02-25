@@ -26,6 +26,7 @@ export interface ClientJob {
   status: "OPEN" | "CLOSED" | "IN_PROGRESS" | "COMPLETED";
   jobImage?: string | null;
   proposalCount: number;
+  createdAt?: string;
 }
 
 // Filters sent to API
