@@ -146,7 +146,7 @@ export default function LoginPage() {
         <Button
           variant="link"
           className="text-primary font-medium hover:underline p-0"
-          onClick={() => navigate("/register")}
+          onClick={() => navigate("/auth/register")}
         >
           Sign up
         </Button>

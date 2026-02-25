@@ -6,7 +6,7 @@ import { Label } from "../../components/ui/label";
 import { Button } from "../../components/ui/button";
 import AuthLayout from "../../layouts/AuthLayout";
 import { useToast } from "../../hooks/use-toast";
-import { registerApi } from "../../api/auth"; // <-- API call
+import { registerApi } from "../../api/auth";
 
 type Role = "client" | "freelancer";
 
@@ -32,8 +32,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const update =
-    (field: keyof FormState) =>
-    (e: ChangeEvent<HTMLInputElement>) =>
+    (field: keyof FormState) => (e: ChangeEvent<HTMLInputElement>) =>
       setForm({ ...form, [field]: e.target.value });
 
   const handleSubmit = async () => {
@@ -63,13 +62,27 @@ export default function RegisterPage() {
       });
 
       navigate("/login");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const fieldErrors = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { data?: Record<string, string>; message?: string } } }).response?.data?.data
+        : null;
+      let description = "";
+
+      if (fieldErrors) {
+        // Take the first field error
+        description = Object.values(fieldErrors)[0] as string;
+      } else {
+        // fallback to generic message
+        const errorMessage = err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : null;
+        description = errorMessage || "Something went wrong. Please try again.";
+      }
+
       toast({
         variant: "destructive",
         title: "Registration Failed",
-        description:
-          err.response?.data?.message ||
-          "Something went wrong. Please try again.",
+        description,
       });
     } finally {
       setLoading(false);
@@ -201,7 +214,7 @@ export default function RegisterPage() {
           <Button
             variant="link"
             className="text-primary font-medium hover:underline p-0"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/auth/login")}
           >
             Log in
           </Button>
