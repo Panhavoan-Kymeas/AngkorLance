@@ -1,3 +1,196 @@
-export default function MyJJobDetailPage() {
-  return <div className="text-center text-xl font-semibold">My Jobs Page</div>;
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import type { JobStatus, ProposalResponse, ProposalStatus } from "@/types/proposal";
+import { fetchJobDetailApi } from "@/api/jobs";
+import { getJobProposalsApi, acceptProposalApi, rejectProposalApi } from "@/api/proposals";
+
+export default function ClientJobDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [job, setJob] = useState<{
+    id: number;
+    title: string;
+    description: string;
+    category: string;
+    budget: number;
+    status: JobStatus;
+    jobImage?: string | null;
+    createdAt: string;
+  } | null>(null);
+
+  const [proposals, setProposals] = useState<ProposalResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Load job and proposals
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const jobDetail = await fetchJobDetailApi(Number(id));
+        const proposalsList = await getJobProposalsApi(Number(id));
+        setJob(jobDetail);
+        setProposals(proposalsList);
+      } catch (err) {
+        console.error(err);
+        toast({ title: "Error", description: "Failed to load job details." });
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [id, toast]);
+
+  // Badge variants
+  const getJobStatusVariant = (status: JobStatus) => {
+    switch (status) {
+      case "OPEN": return "outline";
+      case "IN_PROGRESS": return "secondary";
+      case "COMPLETED": return "default";
+      case "CANCELLED": return "destructive";
+      default: return "default";
+    }
+  };
+
+  const getProposalStatusVariant = (status: ProposalStatus) => {
+    switch (status) {
+      case "PENDING": return "outline";
+      case "ACCEPTED": return "secondary";
+      case "REJECTED": return "destructive";
+      default: return "default";
+    }
+  };
+
+  // Accept a proposal
+  const handleAccept = async (proposalId: number) => {
+    if (!job) return;
+    setActionLoading(true);
+    try {
+      const res = await acceptProposalApi(proposalId);
+      setJob({ ...job, status: res.jobStatus });
+      setProposals((prev) =>
+        prev.map((p) =>
+          p.proposalId === proposalId
+            ? { ...p, status: "ACCEPTED" }
+            : { ...p, status: p.status === "PENDING" ? "REJECTED" : p.status }
+        )
+      );
+      toast({ title: "Success", description: "Proposal accepted." });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error", description: "Failed to accept proposal." });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Reject a proposal
+  const handleReject = async (proposalId: number) => {
+    setActionLoading(true);
+    try {
+      await rejectProposalApi(proposalId);
+      setProposals((prev) =>
+        prev.map((p) =>
+          p.proposalId === proposalId
+            ? { ...p, status: "REJECTED" }
+            : p
+        )
+      );
+      toast({ title: "Success", description: "Proposal rejected." });
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Error", description: "Failed to reject proposal." });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) return <div className="text-center py-20 text-lg text-muted-foreground">Loading job details...</div>;
+  if (!job) return <div className="text-center py-20 text-lg text-muted-foreground">Job not found.</div>;
+
+  return (
+    <section className="max-w-6xl mx-auto py-20 px-6 space-y-10">
+      {/* Job Card */}
+      <Card className="shadow-md rounded-xl overflow-hidden">
+        {job.jobImage && (
+          <img
+            src={job.jobImage}
+            alt={job.title}
+            className="w-full h-64 object-cover md:rounded-t-xl"
+          />
+        )}
+        <CardContent className="p-6 flex flex-col gap-4">
+          <div className="flex justify-between items-start flex-wrap gap-2">
+            <h1 className="text-3xl font-bold">{job.title}</h1>
+            <Badge variant={getJobStatusVariant(job.status)} className="text-sm">{job.status}</Badge>
+          </div>
+          <p className="text-muted-foreground">{job.description}</p>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Badge variant="secondary">Category: {job.category}</Badge>
+            <Badge variant="outline">Budget: ${job.budget}</Badge>
+            <Badge variant="outline">Created: {new Date(job.createdAt).toLocaleDateString()}</Badge>
+          </div>
+          <div className="mt-4 flex gap-4 flex-wrap">
+            <Button onClick={() => navigate("/client/jobs")}>Back to My Jobs</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Proposals */}
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold">Freelancer Proposals ({proposals.length})</h2>
+        {proposals.length === 0 ? (
+          <p className="text-muted-foreground">No proposals submitted yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {proposals.map((p) => (
+              <Card
+                key={p.proposalId}
+                className="flex flex-col md:flex-row overflow-hidden shadow-sm rounded-xl hover:shadow-md transition-shadow duration-300"
+              >
+                <CardContent className="flex-1 p-4 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">{p.freelancerName}</h3>
+                    <p className="text-muted-foreground text-sm mb-2">{p.message}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant={getProposalStatusVariant(p.status)}>{p.status}</Badge>
+                      <Badge variant="outline">Proposed: ${p.proposedBudget}</Badge>
+                      <Badge variant="secondary">Submitted: {new Date(p.createdAt).toLocaleDateString()}</Badge>
+                    </div>
+                  </div>
+
+                  {/* Accept / Reject Buttons */}
+                  {p.status === "PENDING" && job.status !== "CANCELLED" && job.status !== "COMPLETED" && (
+                    <div className="mt-4 flex gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        disabled={actionLoading}
+                        onClick={() => handleAccept(p.proposalId)}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={actionLoading}
+                        onClick={() => handleReject(p.proposalId)}
+                      >
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+    </section>
+  );
 }

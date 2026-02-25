@@ -46,6 +46,15 @@ export const acceptProposalApi = async (
 };
 
 /**
+ * Reject a proposal (Client)
+ */
+export const rejectProposalApi = async (
+  proposalId: number
+): Promise<void> => {
+  await api.post(`/proposals/${proposalId}/reject`);
+};
+
+/**
  * Get all proposals of current freelancer
  */
 export const getMyProposalsApi = async (): Promise<
