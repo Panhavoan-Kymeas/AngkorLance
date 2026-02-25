@@ -70,7 +70,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-<<<<<<< HEAD
                 .cors(cors -> {
                 }) // apply corsConfigurationSource
                 .csrf(csrf -> csrf.disable())
@@ -89,24 +88,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 // JWT filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-=======
-            .cors(cors -> {}) // apply corsConfigurationSource
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                // Public endpoints
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/jobs/open").permitAll()
-
-                // Allow preflight OPTIONS requests
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                // Authenticated endpoints
-                .anyRequest().authenticated()
-            )
-            // JWT filter
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
->>>>>>> experiment/frontend-feature
 
         return http.build();
     }
