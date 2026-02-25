@@ -1,22 +1,22 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import type { JobStatus, ProposalResponse, ProposalStatus } from "@/types/proposal";
+import { fetchJobDetailApi, completeJobApi, deleteJobApi } from "@/api/jobs";
+import { getJobProposalsApi, acceptProposalApi, rejectProposalApi } from "@/api/proposals";
+
 import {
-  fetchJobDetailApi,
-} from "@/api/jobs";
-import {
-  getJobProposalsApi,
-  acceptProposalApi,
-  rejectProposalApi,
-} from "@/api/proposals";
-import { completeJobApi, deleteJobApi } from "@/api/jobs";
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 export default function ClientJobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -39,7 +39,9 @@ export default function ClientJobDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [completeLoading, setCompleteLoading] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  // Load job and proposals
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
@@ -126,34 +128,30 @@ export default function ClientJobDetailPage() {
       const res = await completeJobApi(job.id);
       setJob({ ...job, status: res.status as JobStatus });
       toast({ title: "Success", description: "Job marked as completed." });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast({ title: "Error", description: "Failed to complete job." });
+      toast({
+        title: "Error",
+        description: err.response?.data?.message || "Failed to complete job.",
+        variant: "destructive",
+      });
     } finally {
       setCompleteLoading(false);
     }
   };
 
-  const handleDeleteJob = async () => {
-    if (!job) return;
-    const confirmed = window.confirm("Are you sure you want to delete this job?");
-    if (!confirmed) return;
-
-    setDeleteLoading(true);
-    try {
-      await deleteJobApi(job.id);
-      toast({ title: "Success", description: "Job deleted successfully." });
-      navigate("/client/jobs");
-    } catch (err) {
-      console.error(err);
-      toast({ title: "Error", description: "Failed to delete job." });
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
-  if (loading) return <div className="text-center py-20 text-lg text-muted-foreground">Loading job details...</div>;
-  if (!job) return <div className="text-center py-20 text-lg text-muted-foreground">Job not found.</div>;
+  if (loading)
+    return (
+      <div className="text-center py-20 text-lg text-muted-foreground">
+        Loading job details...
+      </div>
+    );
+  if (!job)
+    return (
+      <div className="text-center py-20 text-lg text-muted-foreground">
+        Job not found.
+      </div>
+    );
 
   return (
     <section className="max-w-6xl mx-auto py-20 px-6 space-y-10">
@@ -169,13 +167,17 @@ export default function ClientJobDetailPage() {
         <CardContent className="p-6 flex flex-col gap-4">
           <div className="flex justify-between items-start flex-wrap gap-2">
             <h1 className="text-3xl font-bold">{job.title}</h1>
-            <Badge variant={getJobStatusVariant(job.status)} className="text-sm">{job.status}</Badge>
+            <Badge variant={getJobStatusVariant(job.status)} className="text-sm">
+              {job.status}
+            </Badge>
           </div>
           <p className="text-muted-foreground">{job.description}</p>
           <div className="flex flex-wrap gap-2 mt-2">
             <Badge variant="secondary">Category: {job.category}</Badge>
             <Badge variant="outline">Budget: ${job.budget}</Badge>
-            <Badge variant="outline">Created: {new Date(job.createdAt).toLocaleDateString()}</Badge>
+            <Badge variant="outline">
+              Created: {new Date(job.createdAt).toLocaleDateString()}
+            </Badge>
           </div>
 
           {/* Action Buttons */}
@@ -183,10 +185,62 @@ export default function ClientJobDetailPage() {
             <Button onClick={() => navigate("/client/jobs")}>Back to My Jobs</Button>
             {job.status === "OPEN" && (
               <>
-                <Button onClick={() => navigate(`/client/jobs/${job.id}/edit`)}>Edit Job</Button>
-                <Button variant="destructive" onClick={handleDeleteJob} disabled={deleteLoading}>
-                  {deleteLoading ? "Deleting..." : "Delete Job"}
+                <Button onClick={() => navigate(`/client/jobs/${job.id}/edit`)}>
+                  Edit Job
                 </Button>
+
+                {/* Delete Job Modal */}
+                <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="destructive" disabled={deleteLoading}>
+                      Delete Job
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle>Confirm Delete</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete this job? This action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setDeleteDialogOpen(false)}
+                        disabled={deleteLoading}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={async () => {
+                          setDeleteLoading(true);
+                          try {
+                            if (!job) return;
+                            await deleteJobApi(job.id);
+                            toast({
+                              title: "Success",
+                              description: "Job deleted successfully.",
+                            });
+                            navigate("/client/jobs");
+                          } catch (err: any) {
+                            toast({
+                              title: "Error",
+                              description: err.response?.data?.message || "Failed to delete job.",
+                              variant: "destructive",
+                            });
+                          } finally {
+                            setDeleteLoading(false);
+                            setDeleteDialogOpen(false);
+                          }
+                        }}
+                        disabled={deleteLoading}
+                      >
+                        {deleteLoading ? "Deleting..." : "Delete"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </>
             )}
             {job.status !== "COMPLETED" && job.status !== "CANCELLED" && (
@@ -204,7 +258,9 @@ export default function ClientJobDetailPage() {
 
       {/* Proposals */}
       <section className="space-y-4">
-        <h2 className="text-2xl font-bold">Freelancer Proposals ({proposals.length})</h2>
+        <h2 className="text-2xl font-bold">
+          Freelancer Proposals ({proposals.length})
+        </h2>
         {proposals.length === 0 ? (
           <p className="text-muted-foreground">No proposals submitted yet.</p>
         ) : (
@@ -224,32 +280,37 @@ export default function ClientJobDetailPage() {
                     </h3>
                     <p className="text-muted-foreground text-sm mb-2">{p.message}</p>
                     <div className="flex flex-wrap gap-2">
-                      <Badge variant={getProposalStatusVariant(p.status)}>{p.status}</Badge>
+                      <Badge variant={getProposalStatusVariant(p.status)}>
+                        {p.status}
+                      </Badge>
                       <Badge variant="outline">Proposed: ${p.proposedBudget}</Badge>
-                      <Badge variant="secondary">Submitted: {new Date(p.createdAt).toLocaleDateString()}</Badge>
+                      <Badge variant="secondary">
+                        Submitted: {new Date(p.createdAt).toLocaleDateString()}
+                      </Badge>
                     </div>
                   </div>
 
-                  {/* Accept / Reject Buttons */}
-                  {p.status === "PENDING" && job.status !== "CANCELLED" && job.status !== "COMPLETED" && (
-                    <div className="mt-4 flex gap-2 flex-wrap">
-                      <Button
-                        size="sm"
-                        disabled={actionLoading}
-                        onClick={() => handleAccept(p.proposalId)}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        disabled={actionLoading}
-                        onClick={() => handleReject(p.proposalId)}
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  )}
+                  {p.status === "PENDING" &&
+                    job.status !== "CANCELLED" &&
+                    job.status !== "COMPLETED" && (
+                      <div className="mt-4 flex gap-2 flex-wrap">
+                        <Button
+                          size="sm"
+                          disabled={actionLoading}
+                          onClick={() => handleAccept(p.proposalId)}
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          disabled={actionLoading}
+                          onClick={() => handleReject(p.proposalId)}
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    )}
                 </CardContent>
               </Card>
             ))}
