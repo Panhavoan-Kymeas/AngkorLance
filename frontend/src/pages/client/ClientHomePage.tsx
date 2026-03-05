@@ -193,7 +193,9 @@ export default function ClientHomePage() {
                       {job.title}
                     </h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      Posted on: {new Date(job.createdAt).toLocaleDateString()}
+                      Posted on: {job.createdAt
+                        ? new Date(job.createdAt).toLocaleDateString()
+                        : "N/A"}
                     </p>
                     <Badge
                       variant={getStatusVariant(job.status)}
