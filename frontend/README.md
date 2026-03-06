@@ -1,73 +1,115 @@
-# React + TypeScript + Vite
+# AngkorLance Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🌏 About The Project
 
-## React Compiler
+**AngkorLance** is a modern freelancing marketplace platform designed to connect **clients** with **freelancers**.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The platform aims to make it easy for businesses to post jobs and for talented professionals to find work opportunities.
 
-## Expanding the ESLint configuration
+The concept is inspired by platforms such as **Upwork**, **Fiverr**, and **Freelancer.com**, but focuses on supporting freelancers and clients in Cambodia and Southeast Asia.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+This repository contains the **frontend application** of the AngkorLance platform.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## ✨ Features
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Modern User Interface
+Clean, responsive UI built for a smooth experience on both desktop and mobile devices.
+
+### Role-Based Layout System
+The application uses multiple layouts depending on user roles:
+
+- Public Layout – Marketing pages
+- Auth Layout – Login and authentication pages
+- Freelancer Layout – Freelancer pages
+- Client Layout – Client pages
+
+### Public Pages
+
+- Home
+- How It Works
+- Pricing
+- Blog
+- Careers
+- Contact
+
+### Authentication
+
+- Login page
+- Register page
+
+---
+
+## ⚙️ Tech Stack
+
+The frontend is built using modern technologies:
+
+- **React**
+- **Vite**
+- **TypeScript**
+- **Tailwind CSS**
+- **React Router**
+
+This stack enables fast development, modular architecture, and high performance.
+
+---
+
+## 🚀 Getting Started
+
+### Clone the repository
+
+```bash
+git clone https://github.com/Panhavoan-Kymeas/AngkorLance.git
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Navigate into the project
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd AngkorLance
 ```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Run the development server
+
+```bash
+npm run dev
+```
+
+### The application will start at:
+
+```bash
+http://localhost:5173
+```
+
+### 🔮 Future Features
+
+  - Planned features for the full AngkorLance platform include:
+
+  - Freelancer profiles and portfolios
+
+  - Job posting system
+
+  - Proposal and bidding system
+
+  - Messaging between freelancers and clients
+
+  - Payment and escrow system
+
+  - Review and rating system
+
+  - Admin dashboard
