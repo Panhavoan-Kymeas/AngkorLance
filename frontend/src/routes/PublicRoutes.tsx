@@ -6,6 +6,7 @@ import LandingPage from "@/pages/public/LandingPage";
 import About from "@/pages/public/AboutPage";
 import { publicPages } from "@/types/navigation";
 import BlogPage from "@/pages/public/BlogPage";
+import PricingPage from "@/pages/public/PricingPage";
 
 const companyName = "Angkorlance";
 
@@ -17,6 +18,7 @@ const PublicRoutes: React.FC = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<About companyName={companyName} />} />
         <Route path="/blog" element={<BlogPage />}/>
+        <Route path="/pricing" element={<PricingPage />} />
       </Route>
     </Routes>
   );
