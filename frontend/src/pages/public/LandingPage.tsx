@@ -1,6 +1,6 @@
+// LandingPage.tsx
+import React from "react";
 import { Link } from "react-router-dom";
-import PublicLayout from "../../layouts/PublicLayout";
-import { publicPages } from "@/types/navigation";
 import {
   Users,
   MagnifyingGlass,
@@ -9,7 +9,6 @@ import {
   Clock,
   ArrowRight,
 } from "phosphor-react";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -36,9 +35,9 @@ const HOW_IT_WORKS = [
   },
 ];
 
-export default function LandingPage() {
+const LandingPage: React.FC = () => {
   return (
-    <PublicLayout pages={publicPages}>
+    <>
       {/* ================= HERO ================= */}
       <section className="relative py-28 px-6 bg-gradient-to-b from-background to-muted/40">
         <div className="max-w-4xl mx-auto text-center">
@@ -49,19 +48,13 @@ export default function LandingPage() {
               Get work done effortlessly.
             </span>
           </h1>
-
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
             The simplest way to find freelancers and get projects completed.
             Post jobs, receive proposals, and collaborate seamlessly.
           </p>
 
-          {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <Button
-              asChild
-              size="lg"
-              className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-            >
+            <Button asChild size="lg" className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
               <Link to="/auth/register">
                 <Users size={18} weight="bold" />
                 Hire Talent
@@ -69,12 +62,7 @@ export default function LandingPage() {
               </Link>
             </Button>
 
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="gap-2 transition-all duration-300 hover:bg-primary hover:text-white hover:-translate-y-1 hover:shadow-2xl"
-            >
+            <Button asChild size="lg" variant="outline" className="gap-2 transition-all duration-300 hover:bg-primary hover:text-white hover:-translate-y-1 hover:shadow-2xl">
               <Link to="/auth/login">
                 <MagnifyingGlass size={18} weight="bold" />
                 Find Work
@@ -105,12 +93,8 @@ export default function LandingPage() {
             >
               <CardContent className="p-6">
                 <div className="mb-4">{step.icon}</div>
-                <h3 className="font-semibold text-lg mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  {step.desc}
-                </p>
+                <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
+                <p className="text-muted-foreground text-sm">{step.desc}</p>
               </CardContent>
             </Card>
           ))}
@@ -120,20 +104,12 @@ export default function LandingPage() {
       {/* ================= CTA ================= */}
       <section className="py-28 px-6 text-center bg-gradient-to-r from-primary/10 to-primary/20">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to get started?
-          </h2>
-
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to get started?</h2>
           <p className="text-muted-foreground text-lg mb-10">
-            Join thousands of clients and freelancers already using
-            AngkorLance to collaborate and succeed.
+            Join thousands of clients and freelancers already using AngkorLance to collaborate and succeed.
           </p>
 
-          <Button
-            asChild
-            size="lg"
-            className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-          >
+          <Button asChild size="lg" className="gap-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
             <Link to="/auth/register">
               Create Your Account
               <ArrowRight size={18} weight="bold" />
@@ -141,6 +117,8 @@ export default function LandingPage() {
           </Button>
         </div>
       </section>
-    </PublicLayout>
+    </>
   );
-}
+};
+
+export default LandingPage;
