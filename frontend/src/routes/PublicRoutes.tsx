@@ -9,6 +9,7 @@ import BlogPage from "@/pages/public/BlogPage";
 import PricingPage from "@/pages/public/PricingPage";
 import CareerPage from "@/pages/public/CareerPage";
 import ContactPage from "@/pages/public/ContactPage";
+import HowItWorksPage from "@/pages/public/HowItWorksPage";
 
 const companyName = "Angkorlance";
 
@@ -23,6 +24,7 @@ const PublicRoutes: React.FC = () => {
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/careers" element={<CareerPage />} /> 
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/how-it-works" element={<HowItWorksPage />} />
       </Route>
     </Routes>
   );
