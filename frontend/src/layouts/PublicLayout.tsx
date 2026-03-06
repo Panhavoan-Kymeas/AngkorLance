@@ -1,37 +1,51 @@
 import React from "react";
 import Navbar from "@/components/Navbar/Navbar";
 import Footer from "@/components/Footer/Footer";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/useAuth";
+import { publicPages, freelancerPages, clientPages } from "@/types/navigation";
 import type { NavItem, Page } from "@/types/navigation";
 
-interface PublicLayoutProps {
-  pages: NavItem[];
-}
-
-const PublicLayout: React.FC<PublicLayoutProps> = ({ pages }) => {
+const PublicLayout: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Filter center tabs (hide login/signup in center tabs)
-  const centerTabs = pages.filter((p) => p.key !== "login" && p.key !== "signup");
+  /** Decide which pages navbar should show */
+  let pages: NavItem[] = publicPages;
+
+  if (user?.role === "FREELANCER") pages = freelancerPages;
+  else if (user?.role === "CLIENT") pages = clientPages;
+
+  /** Filter center tabs for navbar: hide login/signup and Dashboard/Profile */
+  const centerTabs = pages.filter(
+    (p) => !["login", "signup", "dashboard", "profile"].includes(p.key)
+  );
+
+  /** Determine active page from current URL */
+  const initialActivePage: Page =
+    pages.find((p) => p.path === location.pathname)?.key ?? "home";
+
+  const [activePage, setActivePage] = React.useState<Page>(initialActivePage);
 
   const handleNavigate = (page: Page) => {
+    setActivePage(page);
     const navItem = pages.find((p) => p.key === page);
-    if (navItem) window.location.href = navItem.path; // simple navigation fallback
+    if (navItem) navigate(navItem.path);
   };
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Navbar with filtered pages and auth */}
+      {/* Navbar with role-aware pages, avatar still visible */}
       <Navbar
         pages={centerTabs}
-        active="home"
+        active={activePage}
         onNavigate={handleNavigate}
-        user={user ?? undefined}
+        user={user ?? undefined} // show avatar if logged in
         onLogout={logout}
       />
 
-      {/* Page content */}
+      {/* Render page content */}
       <main className="flex-1 p-6">
         <Outlet />
       </main>

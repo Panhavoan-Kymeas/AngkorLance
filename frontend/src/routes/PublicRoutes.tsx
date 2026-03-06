@@ -9,15 +9,23 @@ import PricingPage from "@/pages/public/PricingPage";
 import CareerPage from "@/pages/public/CareerPage";
 import ContactPage from "@/pages/public/ContactPage";
 import HowItWorksPage from "@/pages/public/HowItWorksPage";
-import { publicPages } from "@/types/navigation";
 
-const companyName = "Angkorlance";
+import { publicPages, freelancerPages, clientPages } from "@/types/navigation";
+import { useAuth } from "@/contexts/useAuth";
+
+const companyName = "AngkorLance";
 
 const PublicRoutes: React.FC = () => {
+  const { user } = useAuth();
+
+  /** Decide which pages navbar should show */
+  let pagesToShow = publicPages;
+  if (user?.role === "FREELANCER") pagesToShow = freelancerPages;
+  if (user?.role === "CLIENT") pagesToShow = clientPages;
+
   return (
     <Routes>
-      {/* Wrap all public pages with PublicLayout */}
-      <Route element={<PublicLayout pages={publicPages} />}>
+      <Route element={<PublicLayout pages={pagesToShow} />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/about" element={<About companyName={companyName} />} />
         <Route path="/blog" element={<BlogPage />} />

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,10 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
     <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Avatar className="w-24 h-24" src={user.avatarUrl} />
+        <Avatar className="w-24 h-24">
+          <AvatarImage src={user.avatarUrl} />
+          <AvatarFallback>{user.name[0]}</AvatarFallback>
+        </Avatar>
         <div className="flex-1">
           <h1 className="text-2xl font-bold">{user.name}</h1>
           <p className="text-gray-500">{user.role}</p>

@@ -10,11 +10,17 @@ interface NavbarProps {
   pages: NavItem[];
   active: Page;
   onNavigate: (page: Page) => void;
-  user?: { name: string; role: string }; 
+  user?: { name: string; role: string };
   onLogout?: () => void;
 }
 
-export default function Navbar({ pages, active, onNavigate, user, onLogout }: NavbarProps) {
+export default function Navbar({
+  pages,
+  active,
+  onNavigate,
+  user,
+  onLogout,
+}: NavbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -34,7 +40,19 @@ export default function Navbar({ pages, active, onNavigate, user, onLogout }: Na
         <div className="flex items-center justify-between h-16 px-4 w-full max-w-7xl">
           {/* Logo */}
           <div
-            onClick={() => handleClick("home")}
+            onClick={() => {
+              // If logged in, navigate to root based on role
+              if (currentUser) {
+                if (currentUser.role === "FREELANCER") navigate("/freelancer");
+                else if (currentUser.role === "CLIENT") navigate("/client");
+                else navigate("/"); // fallback
+              } else {
+                // If not logged in, go to public home
+                navigate("/");
+              }
+              // Optional: force refresh to reload page completely
+              // window.location.href = ...
+            }}
             className="flex cursor-pointer items-center gap-2 text-lg font-semibold"
           >
             <Briefcase className="h-5 w-5" />
@@ -48,7 +66,10 @@ export default function Navbar({ pages, active, onNavigate, user, onLogout }: Na
                 key={page.key}
                 variant="ghost"
                 onClick={() => handleClick(page.key)}
-                className={cn("text-sm font-medium", active === page.key && "bg-muted text-primary")}
+                className={cn(
+                  "text-sm font-medium",
+                  active === page.key && "bg-muted text-primary",
+                )}
               >
                 {page.label}
               </Button>
@@ -101,7 +122,10 @@ export default function Navbar({ pages, active, onNavigate, user, onLogout }: Na
                 >
                   Log in
                 </Button>
-                <Button onClick={() => handleClick("signup")} className="text-sm font-medium">
+                <Button
+                  onClick={() => handleClick("signup")}
+                  className="text-sm font-medium"
+                >
                   Get Started
                 </Button>
               </>

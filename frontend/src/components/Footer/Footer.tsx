@@ -1,13 +1,15 @@
+import { useState } from "react"
+import type { ChangeEvent } from "react"
 import { Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { useState } from "react"
-import type { ChangeEvent } from "react"
 import { Link } from "react-router-dom"
+import { useAuth } from "@/contexts/useAuth";
 
 export default function Footer() {
   const [email, setEmail] = useState<string>("")
+  const { user } = useAuth()
 
   // Handle input changes
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
@@ -20,16 +22,35 @@ export default function Footer() {
       alert("Please enter your email")
       return
     }
-    // Replace with your subscription API call
     alert(`Subscribed with ${email}`)
     setEmail("")
+  }
+
+  /** Determine product links based on role */
+  let productLinks = [
+    { label: "Browse Jobs", path: "/jobs" },
+    { label: "Post a Job", path: "/post-job" },
+    { label: "Pricing", path: "/pricing" },
+    { label: "How it Works", path: "/how-it-works" },
+  ]
+
+  if (user?.role === "FREELANCER") {
+    productLinks = [
+      { label: "Browse Jobs", path: "/freelancer/browse-jobs" },
+      { label: "My Proposals", path: "/freelancer/proposals" },
+    ]
+  } else if (user?.role === "CLIENT") {
+    productLinks = [
+      { label: "Post a Job", path: "/client/jobs/create" },
+      { label: "My Jobs", path: "/client/jobs" },
+    ]
   }
 
   return (
     <footer className="border-t bg-background">
       <div className="mx-auto px-4 py-12 w-full max-w-7xl">
 
-        {/* Top Section: Grid */}
+        {/* Top Section */}
         <div className="grid grid-cols-1 gap-10 md:grid-cols-4">
 
           {/* Brand */}
@@ -50,30 +71,17 @@ export default function Footer() {
               Product
             </h4>
             <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-              <Link to="/jobs">
-                <Button variant="link" className="p-0 h-auto justify-start">
-                  Browse Jobs
-                </Button>
-              </Link>
-              <Link to="/post-job">
-                <Button variant="link" className="p-0 h-auto justify-start">
-                  Post a Job
-                </Button>
-              </Link>
-              <Link to="/pricing">
-                <Button variant="link" className="p-0 h-auto justify-start">
-                  Pricing
-                </Button>
-              </Link>
-              <Link to="/how-it-works">
-                <Button variant="link" className="p-0 h-auto justify-start">
-                  How it Works
-                </Button>
-              </Link>
+              {productLinks.map((link) => (
+                <Link key={link.path} to={link.path}>
+                  <Button variant="link" className="p-0 h-auto justify-start">
+                    {link.label}
+                  </Button>
+                </Link>
+              ))}
             </div>
           </div>
 
-          {/* Company Links */}
+          {/* Company Links (same for all roles) */}
           <div className="space-y-4">
             <h4 className="text-sm font-semibold uppercase tracking-wider">
               Company
@@ -119,13 +127,14 @@ export default function Footer() {
               <Button onClick={handleSubscribe}>Subscribe</Button>
             </div>
           </div>
+
         </div>
 
         <Separator className="my-8" />
 
         {/* Bottom Section */}
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-          <p>© {new Date().getFullYear()} FreelanceHub. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Angkorlance. All rights reserved.</p>
           <div className="flex gap-4">
             <Link to="/terms">
               <Button variant="link" className="p-0 h-auto">Terms</Button>
