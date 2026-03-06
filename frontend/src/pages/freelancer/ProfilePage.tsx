@@ -10,8 +10,8 @@ interface ProfilePageProps {
   user: {
     id: number;
     name: string;
-    role: "Freelancer" | "Client";
-    email: string;
+    role: "FREELANCER" | "CLIENT";
+    email?: string; 
     bio?: string;
     skills?: string[];
     avatarUrl?: string;
