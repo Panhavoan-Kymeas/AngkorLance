@@ -4,24 +4,23 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Briefcase } from "lucide-react";
 import type { NavItem, Page } from "@/types/navigation";
+import { useAuth } from "@/contexts/useAuth";
 
 interface NavbarProps {
   pages: NavItem[];
   active: Page;
   onNavigate: (page: Page) => void;
-  user?: { name: string; role: string };
+  user?: { name: string; role: string }; 
   onLogout?: () => void;
 }
 
-export default function Navbar({
-  pages,
-  active,
-  onNavigate,
-  user,
-  onLogout,
-}: NavbarProps) {
+export default function Navbar({ pages, active, onNavigate, user, onLogout }: NavbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
+
+  const auth = useAuth();
+  const currentUser = user ?? auth.user;
+  const handleLogout = onLogout ?? auth.logout;
 
   const handleClick = (page: Page) => {
     onNavigate(page);
@@ -32,7 +31,6 @@ export default function Navbar({
   return (
     <nav className="w-full border-b bg-background sticky top-0 z-50">
       <div className="flex justify-center w-full">
-        {/* Content wrapper to control max width */}
         <div className="flex items-center justify-between h-16 px-4 w-full max-w-7xl">
           {/* Logo */}
           <div
@@ -50,10 +48,7 @@ export default function Navbar({
                 key={page.key}
                 variant="ghost"
                 onClick={() => handleClick(page.key)}
-                className={cn(
-                  "text-sm font-medium",
-                  active === page.key && "bg-muted text-primary",
-                )}
+                className={cn("text-sm font-medium", active === page.key && "bg-muted text-primary")}
               >
                 {page.label}
               </Button>
@@ -62,22 +57,22 @@ export default function Navbar({
 
           {/* Right Actions */}
           <div className="flex items-center gap-2 relative">
-            {user ? (
+            {currentUser ? (
               <div className="relative">
-                {/* Avatar Circle */}
+                {/* Avatar */}
                 <div
                   className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-white flex items-center justify-center cursor-pointer font-semibold shadow-md hover:scale-105 transition-transform duration-200"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  title={user.name}
+                  title={currentUser.name}
                 >
-                  {user.name
+                  {currentUser.name
                     .split(" ")
                     .map((n) => n[0])
                     .slice(0, 2)
                     .join("")}
                 </div>
 
-                {/* Dropdown Menu */}
+                {/* Dropdown */}
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 shadow-lg rounded-md z-10">
                     <Button
@@ -90,7 +85,7 @@ export default function Navbar({
                     <Button
                       variant="ghost"
                       className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                      onClick={onLogout}
+                      onClick={handleLogout}
                     >
                       Logout
                     </Button>
@@ -106,10 +101,7 @@ export default function Navbar({
                 >
                   Log in
                 </Button>
-                <Button
-                  onClick={() => handleClick("signup")}
-                  className="text-sm font-medium"
-                >
+                <Button onClick={() => handleClick("signup")} className="text-sm font-medium">
                   Get Started
                 </Button>
               </>
