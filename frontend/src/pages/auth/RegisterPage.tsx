@@ -63,19 +63,21 @@ export default function RegisterPage() {
 
       navigate("/auth/login");
     } catch (err: unknown) {
-      const fieldErrors = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { data?: Record<string, string>; message?: string } } }).response?.data?.data
-        : null;
+      const fieldErrors =
+        err &&
+        typeof err === "object" &&
+        "response" in err &&
+        (err as any).response?.data?.data;
       let description = "";
 
       if (fieldErrors) {
-        // Take the first field error
         description = Object.values(fieldErrors)[0] as string;
       } else {
-        // fallback to generic message
-        const errorMessage = err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-          : null;
+        const errorMessage =
+          err &&
+          typeof err === "object" &&
+          "response" in err &&
+          (err as any).response?.data?.message;
         description = errorMessage || "Something went wrong. Please try again.";
       }
 
@@ -91,135 +93,133 @@ export default function RegisterPage() {
 
   return (
     <AuthLayout>
-      <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
-        {/* Logo */}
-        <div
-          className="flex items-center gap-2 mb-6 justify-center cursor-pointer"
-          onClick={() => navigate("/")}
-        >
-          <Briefcase size={28} weight="bold" />
-          <span className="text-2xl font-bold">AngkorLance</span>
-        </div>
-
-        {/* Heading */}
-        <h2 className="text-2xl font-bold mb-2 text-center">
-          Create Your Account
-        </h2>
-        <p className="text-sm text-gray-500 text-center mb-6">
-          Join AngkorLance and start connecting with top talent
-        </p>
-
-        {/* Form Inputs */}
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="name">Full Name</Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="Jane Smith"
-              value={form.name}
-              onChange={update("name")}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="janesmith@example.com"
-              value={form.email}
-              onChange={update("email")}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              value={form.password}
-              onChange={update("password")}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="••••••••"
-              value={form.confirmPassword}
-              onChange={update("confirmPassword")}
-            />
-          </div>
-        </div>
-
-        {/* Role Selection */}
-        <p className="mt-6 mb-3 text-sm font-semibold text-center text-gray-700">
-          I want to...
-        </p>
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          {[
-            {
-              key: "client",
-              title: "Hire Talent",
-              desc: "Post jobs",
-              icon: <Users size={28} weight="bold" className="text-primary" />,
-            },
-            {
-              key: "freelancer",
-              title: "Find Work",
-              desc: "Submit proposals",
-              icon: (
-                <MagnifyingGlass
-                  size={28}
-                  weight="bold"
-                  className="text-primary"
-                />
-              ),
-            },
-          ].map((r) => (
-            <button
-              key={r.key}
-              type="button"
-              onClick={() => setRole(r.key as Role)}
-              className={`flex flex-col items-center justify-center gap-2 p-5 rounded-xl border transition-all duration-200
-        ${
-          role === r.key
-            ? "border-primary bg-primary/10 shadow-md"
-            : "border-gray-200 hover:shadow-sm hover:border-primary"
-        }`}
-            >
-              {r.icon}
-              <span className="font-medium text-gray-900">{r.title}</span>
-              <span className="text-sm text-gray-500">{r.desc}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Submit Button */}
-        <Button
-          className="w-full py-3 mb-4"
-          onClick={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? "Creating Account..." : "Create Account"}
-        </Button>
-
-        {/* Switch to Login */}
-        <p className="text-center text-sm text-gray-500 mt-2">
-          Already have an account?{" "}
-          <Button
-            variant="link"
-            className="text-primary font-medium hover:underline p-0"
-            onClick={() => navigate("/auth/login")}
-          >
-            Log in
-          </Button>
-        </p>
+      {/* Logo */}
+      <div
+        className="flex items-center gap-2 mb-6 justify-center cursor-pointer"
+        onClick={() => navigate("/")}
+      >
+        <Briefcase size={28} weight="bold" />
+        <span className="text-2xl font-bold">AngkorLance</span>
       </div>
+
+      {/* Heading */}
+      <h2 className="text-2xl font-bold mb-2 text-center">
+        Create Your Account
+      </h2>
+      <p className="text-sm text-gray-500 text-center mb-6">
+        Join AngkorLance and start connecting with top talent
+      </p>
+
+      {/* Form Inputs */}
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="name">Full Name</Label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Jane Smith"
+            value={form.name}
+            onChange={update("name")}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="janesmith@example.com"
+            value={form.email}
+            onChange={update("email")}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            value={form.password}
+            onChange={update("password")}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Input
+            id="confirmPassword"
+            type="password"
+            placeholder="••••••••"
+            value={form.confirmPassword}
+            onChange={update("confirmPassword")}
+          />
+        </div>
+      </div>
+
+      {/* Role Selection */}
+      <p className="mt-6 mb-3 text-sm font-semibold text-center text-gray-700">
+        I want to...
+      </p>
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        {[
+          {
+            key: "client",
+            title: "Hire Talent",
+            desc: "Post jobs",
+            icon: <Users size={28} weight="bold" className="text-primary" />,
+          },
+          {
+            key: "freelancer",
+            title: "Find Work",
+            desc: "Submit proposals",
+            icon: (
+              <MagnifyingGlass
+                size={28}
+                weight="bold"
+                className="text-primary"
+              />
+            ),
+          },
+        ].map((r) => (
+          <button
+            key={r.key}
+            type="button"
+            onClick={() => setRole(r.key as Role)}
+            className={`flex flex-col items-center justify-center gap-2 p-5 rounded-xl border transition-all duration-200
+            ${
+              role === r.key
+                ? "border-primary bg-primary/10 shadow-md"
+                : "border-gray-200 hover:shadow-sm hover:border-primary"
+            }`}
+          >
+            {r.icon}
+            <span className="font-medium text-gray-900">{r.title}</span>
+            <span className="text-sm text-gray-500">{r.desc}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Submit Button */}
+      <Button
+        className="w-full py-3 mb-4"
+        onClick={handleSubmit}
+        disabled={loading}
+      >
+        {loading ? "Creating Account..." : "Create Account"}
+      </Button>
+
+      {/* Switch to Login */}
+      <p className="text-center text-sm text-gray-500 mt-2">
+        Already have an account?{" "}
+        <Button
+          variant="link"
+          className="text-primary font-medium hover:underline p-0"
+          onClick={() => navigate("/auth/login")}
+        >
+          Log in
+        </Button>
+      </p>
     </AuthLayout>
   );
 }
