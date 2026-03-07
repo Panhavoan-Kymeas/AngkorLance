@@ -50,6 +50,27 @@ The application uses multiple layouts depending on user roles:
 
 ---
 
+## 🖼 Screenshots
+### Public / Guest Pages
+- **Landing Page**  
+![Home Page](./screenshots/guest-landing-page.png)
+
+### Authentication
+- **Login Page**  
+![Login Page](./screenshots/login.png)  
+- **Register Page**  
+![Register Page](./screenshots/register.png)
+
+### Freelancer Pages
+- **Freelancer Landing Page**  
+![Freelancer Dashboard](./screenshots/freelancer-landing-page.png)  
+
+### Client Pages
+- **Client Dashboard**  
+![Client Dashboard](./screenshots/client-landing-page.png)
+
+---
+
 ## ⚙️ Tech Stack
 
 The frontend is built using modern technologies:
