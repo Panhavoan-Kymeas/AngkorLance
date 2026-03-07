@@ -63,11 +63,11 @@ The application uses multiple layouts depending on user roles:
 
 ### Freelancer Pages
 - **Freelancer Landing Page**  
-![Freelancer Dashboard](./screenshots/freelancer-landing-page.png)  
+![Freelancer Landing Page](./screenshots/freelancer-landing-page.png)  
 
 ### Client Pages
-- **Client Dashboard**  
-![Client Dashboard](./screenshots/client-landing-page.png)
+- **Client Landing Page**  
+![Client Landing Page](./screenshots/client-landing-page.png)
 
 ---
 
