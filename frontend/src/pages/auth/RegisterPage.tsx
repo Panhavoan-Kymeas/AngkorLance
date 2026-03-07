@@ -61,7 +61,7 @@ export default function RegisterPage() {
         description: "Your AngkorLance account has been successfully created!",
       });
 
-      navigate("/login");
+      navigate("/auth/login");
     } catch (err: unknown) {
       const fieldErrors = err && typeof err === 'object' && 'response' in err
         ? (err as { response?: { data?: { data?: Record<string, string>; message?: string } } }).response?.data?.data
