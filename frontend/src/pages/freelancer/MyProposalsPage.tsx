@@ -74,7 +74,7 @@ const MyProposalsPage: React.FC = () => {
         <Button
           size="lg"
           variant="default"
-          onClick={() => navigate("/freelancer/jobs/open")}
+          onClick={() => navigate("/freelancer/browse-jobs")}
         >
           Browse Available Jobs
         </Button>
