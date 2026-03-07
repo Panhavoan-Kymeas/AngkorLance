@@ -1,6 +1,10 @@
-import axios from "axios";
+import axios, { type AxiosResponse, AxiosError, type InternalAxiosRequestConfig } from "axios";
+import LoadingService from "@/contexts/loading/LoadingService";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+
+// Optional delay function for testing loading
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -9,27 +13,39 @@ const api = axios.create({
   },
 });
 
-// Automatically attach JWT token if available
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// Request interceptor
+api.interceptors.request.use(
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    LoadingService.show();
 
-// Global error handler (optional)
+    // Ensure headers exist and are AxiosHeaders
+    config.headers = config.headers || {};
+    const token = localStorage.getItem("token");
+    if (token) {
+      (config.headers as Record<string, string>).Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  }
+);
+
+// Response interceptor
 api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401) {
-      // Remove token but do NOT redirect
+  async (response: AxiosResponse) => {
+    await delay(200); // simulate network delay
+    LoadingService.hide();
+    return response;
+  },
+  async (error: AxiosError) => {
+    await delay(200);
+    LoadingService.hide();
+
+    if (error.response?.status === 401) {
       localStorage.removeItem("token");
-      // Leave the user on the current page (LoginPage)
-      // Optionally you can log or handle errors here
       console.warn("Unauthorized request, token removed.");
     }
-    return Promise.reject(err);
+
+    return Promise.reject(error);
   }
 );
 
