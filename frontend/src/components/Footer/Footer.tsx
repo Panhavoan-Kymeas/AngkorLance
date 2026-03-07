@@ -28,8 +28,8 @@ export default function Footer() {
 
   /** Determine product links based on role */
   let productLinks = [
-    { label: "Browse Jobs", path: "/jobs" },
-    { label: "Post a Job", path: "/post-job" },
+    { label: "Browse Jobs", path: "/freelancer/jobs" },
+    { label: "Post a Job", path: "/client/post-job" },
     { label: "Pricing", path: "/pricing" },
     { label: "How it Works", path: "/how-it-works" },
   ]

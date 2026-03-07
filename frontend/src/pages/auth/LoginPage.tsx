@@ -52,21 +52,21 @@ export default function LoginPage() {
     try {
       const res = await loginApi(form);
 
-      // ❌ Stop if login failed — DO NOT navigate
       if (!res.success || !res.data) {
+        // Prefer backend error inside data.login if available
+        const errorMessage =
+          res.data?.login || res.message || "Invalid email or password";
+
         toast({
           variant: "destructive",
           title: "Login Failed",
-          description: res.message || "Invalid email or password.",
+          description: errorMessage,
         });
         return;
       }
 
-      // ✅ Save token and user
+      // login success
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data));
-
-      // Update auth context
       login(res.data);
 
       toast({
@@ -74,18 +74,22 @@ export default function LoginPage() {
         description: `Welcome back, ${res.data.name}!`,
       });
 
-      // Redirect only on success
-      if (res.data.role === "FREELANCER") {
-        navigate("/freelancer", { replace: true });
-      } else {
-        navigate("/client", { replace: true });
-      }
+      navigate(res.data.role === "FREELANCER" ? "/freelancer" : "/client", {
+        replace: true,
+      });
     } catch (error: unknown) {
+      // Narrow unknown to AxiosError
+      const axiosError = error as { response?: { data?: { data?: { login?: string }; message?: string } } } | undefined;
+
+      const backendMessage =
+        axiosError?.response?.data?.data?.login ||
+        axiosError?.response?.data?.message ||
+        (error instanceof Error ? error.message : "Invalid email or password");
+
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description:
-          error instanceof Error ? error.message : "Invalid email or password.",
+        description: backendMessage,
       });
     } finally {
       setLoading(false);

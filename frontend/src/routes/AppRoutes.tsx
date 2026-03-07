@@ -9,9 +9,6 @@ import FreelancerRoute from "./FreelancerRoute";
 const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public pages */}
-      <Route path="/*" element={<PublicRoutes />} />
-
       {/* Auth pages */}
       <Route path="/auth/*" element={<AuthRoute />} />
 
@@ -20,6 +17,9 @@ const AppRoutes: React.FC = () => {
 
       {/* Freelancer pages */}
       <Route path="/freelancer/*" element={<FreelancerRoute />} />
+
+      {/* Public pages */}
+      <Route path="/*" element={<PublicRoutes />} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

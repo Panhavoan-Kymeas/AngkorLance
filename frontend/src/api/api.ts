@@ -23,8 +23,11 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
+      // Remove token but do NOT redirect
       localStorage.removeItem("token");
-      window.location.href = "/login"; // auto redirect on unauthorized
+      // Leave the user on the current page (LoginPage)
+      // Optionally you can log or handle errors here
+      console.warn("Unauthorized request, token removed.");
     }
     return Promise.reject(err);
   }
