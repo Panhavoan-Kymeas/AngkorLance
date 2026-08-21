@@ -27,6 +27,6 @@ export interface AuthUser {
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
-  data: T;
+  data?: T; 
   errors?: Record<string, string>;
 }

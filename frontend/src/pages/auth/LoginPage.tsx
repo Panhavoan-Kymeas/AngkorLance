@@ -13,20 +13,22 @@ import { useAuth } from "../../contexts/useAuth";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth(); // context to update user state
+  const { login } = useAuth();
 
   const [form, setForm] = useState<LoginPayload>({
     email: "",
     password: "",
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const update = (field: keyof LoginPayload) => (e: ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
-  };
+  // Input handler
+  const update =
+    (field: keyof LoginPayload) => (e: ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({ ...prev, [field]: e.target.value.trim() }));
+    };
 
+  // Login handler
   const handleLogin = async () => {
     if (!form.email || !form.password) {
       toast({
@@ -37,7 +39,6 @@ export default function LoginPage() {
       return;
     }
 
-    // optional: simple email validation
     if (!/\S+@\S+\.\S+/.test(form.email)) {
       toast({
         variant: "destructive",
@@ -47,15 +48,25 @@ export default function LoginPage() {
       return;
     }
 
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await loginApi(form);
 
-      // save token + user
+      // ❌ Stop if login failed — DO NOT navigate
+      if (!res.success || !res.data) {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: res.message || "Invalid email or password.",
+        });
+        return;
+      }
+
+      // ✅ Save token and user
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data));
 
-      // update context
+      // Update auth context
       login(res.data);
 
       toast({
@@ -63,11 +74,11 @@ export default function LoginPage() {
         description: `Welcome back, ${res.data.name}!`,
       });
 
-      // redirect based on role
+      // Redirect only on success
       if (res.data.role === "FREELANCER") {
-        navigate("/freelancer", { replace: true }); // go to FreelancerHomePage
+        navigate("/freelancer", { replace: true });
       } else {
-        navigate("/client", { replace: true }); // go to client homepage
+        navigate("/client", { replace: true });
       }
     } catch (error: unknown) {
       toast({
@@ -83,6 +94,7 @@ export default function LoginPage() {
 
   return (
     <AuthLayout>
+      {/* Logo */}
       <div
         className="flex items-center gap-2 mb-8 cursor-pointer justify-center"
         onClick={() => navigate("/")}
@@ -96,6 +108,7 @@ export default function LoginPage() {
         Log in to your AngkorLance account
       </p>
 
+      {/* Form */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -103,42 +116,44 @@ export default function LoginPage() {
         }}
         className="space-y-4"
       >
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="john@example.com"
-            value={form.email}
-            onChange={update("email")}
-            autoFocus
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
+        <fieldset disabled={loading} className="space-y-4">
+          <div>
+            <Label htmlFor="email">Email</Label>
             <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              value={form.password}
-              onChange={update("password")}
+              id="email"
+              type="email"
+              placeholder="john@example.com"
+              value={form.email}
+              onChange={update("email")}
+              autoFocus
             />
-            <button
-              type="button"
-              aria-label={showPassword ? "Hide password" : "Show password"}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              onClick={() => setShowPassword((prev) => !prev)}
-            >
-              {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
-            </button>
           </div>
-        </div>
 
-        <Button className="w-full mt-4" type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Log in"}
-        </Button>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                value={form.password}
+                onChange={update("password")}
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <EyeSlash size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
+
+          <Button className="w-full mt-4" type="submit">
+            {loading ? "Logging in..." : "Log in"}
+          </Button>
+        </fieldset>
       </form>
 
       <p className="text-center text-sm text-gray-500 mt-4">
