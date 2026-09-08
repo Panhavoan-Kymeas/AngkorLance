@@ -1,56 +1,54 @@
-export type ProposalStatus = "PENDING" | "ACCEPTED" | "REJECTED"
+export type ProposalStatus = "PENDING" | "ACCEPTED" | "REJECTED";
 
-export type JobStatus =
-  | "OPEN"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CLOSED"
-  | "CANCELLED"
+export type JobStatus = "OPEN" | "IN_PROGRESS" | "COMPLETED";
 
 /* ===============================
-   Request Types
+   Request
 ================================ */
 
 export interface ProposalRequest {
-  jobId: number
-  message: string
-  proposedPrice: number
+  jobId: number;
+  message: string;
+  proposedPrice: number;
 }
 
 /* ===============================
-   Client View (Job Proposals)
+   Client view — proposals for a job
+   (GET /api/jobs/{id}/proposals)
 ================================ */
 
 export interface ProposalResponse {
-  proposalId: number
-  freelancerId: number
-  freelancerName: string
-  freelancerEmail: string
-  message: string
-  proposedBudget: number
-  status: ProposalStatus
-  createdAt: string
+  proposalId: number;
+  freelancerId: number;
+  freelancerName: string;
+  freelancerEmail: string;
+  message: string;
+  proposedPrice: number;
+  status: ProposalStatus;
+  createdAt: string;
 }
 
 /* ===============================
-   Accept Response
+   Accept response
+   (POST /api/proposals/{id}/accept)
 ================================ */
 
 export interface ProposalAcceptanceResponse {
-  proposalId: number
-  proposalStatus: ProposalStatus
-  jobStatus: JobStatus
+  proposalId: number;
+  status: ProposalStatus;
+  jobStatus: JobStatus;
 }
 
 /* ===============================
-   Freelancer Dashboard View
+   Freelancer view — my proposals
+   (GET /api/my-proposals)
 ================================ */
 
 export interface FreelancerProposalResponse {
-  proposalId: number
-  jobId: number
-  jobTitle: string
-  jobStatus: JobStatus
-  proposedBudget: number
-  status: ProposalStatus
+  proposalId: number;
+  jobId: number;
+  jobTitle: string;
+  jobStatus: JobStatus;
+  proposedPrice: number;
+  status: ProposalStatus;
 }

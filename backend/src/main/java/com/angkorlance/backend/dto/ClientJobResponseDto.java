@@ -7,7 +7,7 @@ public class ClientJobResponseDto {
     private final String category;
     private final Double budget;
     private final String status;
-    private final String imagePath;
+    private final String imageUrl;
     private final Integer proposalCount;
 
     public ClientJobResponseDto(
@@ -16,7 +16,7 @@ public class ClientJobResponseDto {
             String category,
             Double budget,
             String status,
-            String imagePath,
+            String imageUrl,
             Integer proposalCount
     ) {
         this.id = id;
@@ -24,7 +24,7 @@ public class ClientJobResponseDto {
         this.category = category;
         this.budget = budget;
         this.status = status;
-        this.imagePath = imagePath;
+        this.imageUrl = imageUrl;
         this.proposalCount = proposalCount;
     }
 
@@ -48,8 +48,8 @@ public class ClientJobResponseDto {
         return status;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     public Integer getProposalCount() {

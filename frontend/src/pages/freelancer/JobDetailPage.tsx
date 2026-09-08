@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { parseApiError } from "@/lib/apiError";
+import { categoryLabel } from "@/lib/categories";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +43,7 @@ const JobDetailPage: React.FC = () => {
       } catch (err: unknown) {
         toast({
           title: "Failed to load job",
-          description: err instanceof Error ? err.message : "Unknown error",
+          description: parseApiError(err),
           variant: "destructive",
         });
       } finally {
@@ -86,16 +88,9 @@ const JobDetailPage: React.FC = () => {
       setProposalMessage("");
       setProposedPrice("");
     } catch (err: unknown) {
-      // Extract backend error message
-      const errorResponse = err && typeof err === 'object' && 'response' in err 
-        ? (err as { response?: { data?: { data?: { error?: string }; message?: string } } }).response?.data 
-        : null;
-      const errorMessage =
-        errorResponse?.data?.error || errorResponse?.message || "Something went wrong";
-
       toast({
         title: "Failed to submit proposal",
-        description: errorMessage,
+        description: parseApiError(err),
         variant: "destructive",
       });
     }
@@ -107,7 +102,7 @@ const JobDetailPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
         <div>
           <h1 className="text-3xl font-bold">{job.title}</h1>
-          <p className="text-gray-500 mt-1">{job.category}</p>
+          <p className="text-gray-500 mt-1">{categoryLabel(job.category)}</p>
         </div>
         <div className="flex flex-col gap-2">
           <span className="text-sm text-gray-400">

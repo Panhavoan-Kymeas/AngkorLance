@@ -79,9 +79,10 @@ public class JobController {
     }
 
     @PatchMapping("/{jobId}")
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<ClientJobResponseDto> updateJob(
             @PathVariable Long jobId,
-            @RequestBody UpdateJobRequestDto dto) {
+            @Valid @RequestBody UpdateJobRequestDto dto) {
 
         Long userId = SecurityUtil.getCurrentUserId();
         ClientJobResponseDto updatedJob = jobService.updateJob(jobId, dto, userId);
@@ -90,6 +91,7 @@ public class JobController {
     }
 
     @DeleteMapping("/{jobId}")
+    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<Void> deleteJob(@PathVariable Long jobId) {
         Long userId = SecurityUtil.getCurrentUserId();
         jobService.deleteJob(jobId, userId);

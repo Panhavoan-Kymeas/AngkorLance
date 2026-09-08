@@ -7,7 +7,7 @@ public class FreelancerJobResponseDto {
     private final String category;
     private final Double budget;
     private final String clientName;
-    private final String imagePath;
+    private final String imageUrl;
 
     public FreelancerJobResponseDto(
             Long id,
@@ -15,14 +15,14 @@ public class FreelancerJobResponseDto {
             String category,
             Double budget,
             String clientName,
-            String imagePath
+            String imageUrl
     ) {
         this.id = id;
         this.title = title;
         this.category = category;
         this.budget = budget;
         this.clientName = clientName;
-        this.imagePath = imagePath;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {
@@ -45,7 +45,7 @@ public class FreelancerJobResponseDto {
         return clientName;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getImageUrl() {
+        return imageUrl;
     }
 }

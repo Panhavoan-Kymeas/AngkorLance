@@ -1,20 +1,21 @@
 import type { Job } from "../../api/jobs";
+import { assetUrl } from "../../lib/assets";
+import { categoryLabel } from "../../lib/categories";
 
 interface JobCardProps {
-  job: Job & { status?: string };
-  onClick?: () => void; 
+  job: Job;
+  onClick?: () => void;
 }
 
 export default function JobCard({ job, onClick }: JobCardProps) {
   const statusColors: Record<string, string> = {
     OPEN: "bg-green-100 text-green-800",
-    CLOSED: "bg-red-100 text-red-800",
     IN_PROGRESS: "bg-yellow-100 text-yellow-800",
     COMPLETED: "bg-blue-100 text-blue-800",
   };
 
-  const imageUrl = job.jobImage;
-  const status = job.status ?? "OPEN"; // fallback if undefined
+  const imageUrl = assetUrl(job.imageUrl);
+  const status = job.status ?? "OPEN"; // list endpoint only returns OPEN jobs
 
   return (
     <div
@@ -39,7 +40,7 @@ export default function JobCard({ job, onClick }: JobCardProps) {
             {status}
           </span>
         </div>
-        <p className="text-gray-500">{job.category}</p>
+        <p className="text-gray-500">{categoryLabel(job.category)}</p>
         <p className="mt-2 font-medium">${job.budget}</p>
         <p className="text-sm text-gray-600 mt-1">Client: {job.clientName}</p>
       </div>

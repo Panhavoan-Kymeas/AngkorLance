@@ -3,6 +3,7 @@ package com.angkorlance.backend.config;
 import java.util.List;
 
 import com.angkorlance.backend.security.JwtAuthenticationFilter;
+import com.angkorlance.backend.security.RestAuthEntryPoint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,9 +23,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RestAuthEntryPoint restAuthEntryPoint;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+            RestAuthEntryPoint restAuthEntryPoint) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.restAuthEntryPoint = restAuthEntryPoint;
     }
 
     // Password encoder
@@ -33,7 +37,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Frontend URL for dev
+    // Frontend URL for CORS (dev default; overridden by FRONTEND_URL in other envs)
     @Value("${FRONTEND_URL:http://localhost:5173}")
     private String frontendUrl;
 
@@ -42,22 +46,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Allowed origin(s)
         config.setAllowedOrigins(List.of(frontendUrl));
-
-        // Allowed HTTP methods
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin"));
+        config.setExposedHeaders(List.of("Location"));
+        // The API is bearer-token based, not cookie based: credentials are not needed.
+        config.setAllowCredentials(false);
+        config.setMaxAge(3600L);
 
-        // Allowed headers
-        config.setAllowedHeaders(List.of("*"));
-
-        // Allow credentials (cookies, authorization headers)
-        config.setAllowCredentials(true);
-
-        // Map to all API endpoints
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
-
         return source;
     }
 
@@ -67,22 +65,22 @@ public class SecurityConfig {
 
         http
                 .cors(cors -> {
-                }) // apply corsConfigurationSource
+                }) // uses corsConfigurationSource bean
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/jobs/open").permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/api/jobs/open").permitAll()
+                        .requestMatchers("/api/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-
-                        // Allow preflight OPTIONS requests
+                        // Preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // Authenticated endpoints
+                        // Everything else requires a valid token
                         .anyRequest().authenticated())
-                // JWT filter
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(restAuthEntryPoint)
+                        .accessDeniedHandler(restAuthEntryPoint))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

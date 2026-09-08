@@ -5,9 +5,17 @@ import type {
   ClientJob,
   JobFilterPayload,
   BrowseJobsResponse,
+  UpdateJobPayload,
 } from "../types/jobs";
 
-export type { Job, JobDetail, ClientJob, JobFilterPayload, BrowseJobsResponse };
+export type {
+  Job,
+  JobDetail,
+  ClientJob,
+  JobFilterPayload,
+  BrowseJobsResponse,
+  UpdateJobPayload,
+};
 
 /**
  * Fetch open jobs for freelancers (with optional category & pagination)
@@ -44,7 +52,7 @@ export const fetchMyJobsApi = async (): Promise<ClientJob[]> => {
 };
 
 /**
- * Create a new job (multipart/form-data)
+ * Create a new job (multipart/form-data). Returns the new job id.
  */
 export const createJobApi = async (data: FormData): Promise<number> => {
   const res = await api.post<number>("/jobs", data, {
@@ -54,11 +62,11 @@ export const createJobApi = async (data: FormData): Promise<number> => {
 };
 
 /**
- * Update a job
+ * Update a job (partial). Only the fields present are changed.
  */
 export const updateJobApi = async (
   jobId: number,
-  data: Partial<Job>
+  data: UpdateJobPayload
 ): Promise<ClientJob> => {
   const res = await api.patch<ClientJob>(`/jobs/${jobId}`, data);
   return res.data;

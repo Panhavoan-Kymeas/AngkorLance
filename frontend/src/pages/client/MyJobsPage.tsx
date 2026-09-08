@@ -8,6 +8,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { useToast } from "@/hooks/use-toast";
 import { fetchMyJobsApi } from "@/api/jobs";
 import type { ClientJob } from "@/types/jobs";
+import { assetUrl, JOB_IMAGE_PLACEHOLDER } from "@/lib/assets";
+import { categoryLabel } from "@/lib/categories";
+import { parseApiError } from "@/lib/apiError";
 
 export default function MyJobsPage() {
   const { toast } = useToast();
@@ -43,8 +46,7 @@ export default function MyJobsPage() {
       setJobs(filtered.slice(start, end));
       setTotalPages(Math.ceil(filtered.length / size));
     } catch (err) {
-      console.error(err);
-      toast({ title: "Error", description: "Failed to load jobs." });
+      toast({ variant: "destructive", title: "Error", description: parseApiError(err, "Failed to load jobs.") });
     } finally {
       setLoading(false);
     }
@@ -59,7 +61,6 @@ export default function MyJobsPage() {
       case "OPEN": return "outline";
       case "IN_PROGRESS": return "secondary";
       case "COMPLETED": return "default";
-      case "CLOSED": return "destructive";
       default: return "default";
     }
   };
@@ -91,7 +92,6 @@ export default function MyJobsPage() {
             <SelectItem value="OPEN">Open</SelectItem>
             <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
             <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="CLOSED">Closed</SelectItem>
           </SelectContent>
         </Select>
         <Button
@@ -116,14 +116,14 @@ export default function MyJobsPage() {
             >
               <div className="relative w-full md:w-48 h-48 md:h-auto flex-shrink-0">
                 <img
-                  src={job.jobImage ?? "/placeholder-job.png"}
+                  src={assetUrl(job.imageUrl) ?? JOB_IMAGE_PLACEHOLDER}
                   alt={job.title}
                   className="w-full h-full object-cover"
                 />
                 {/* Status Badge top-right */}
                 <div className="absolute top-2 right-2">
                   <Badge variant={getStatusVariant(job.status)}>
-                    {job.status}
+                    {job.status.replace("_", " ")}
                   </Badge>
                 </div>
               </div>
@@ -132,7 +132,7 @@ export default function MyJobsPage() {
                   <CardHeader className="p-0">
                     <CardTitle className="text-xl font-semibold">{job.title}</CardTitle>
                   </CardHeader>
-                  <p className="text-muted-foreground mb-3">{job.category}</p>
+                  <p className="text-muted-foreground mb-3">{categoryLabel(job.category)}</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline">Proposals: {job.proposalCount}</Badge>
                     {job.createdAt && (

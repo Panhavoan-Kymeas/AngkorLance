@@ -27,9 +27,6 @@ export default function BrowseJobsPage() {
     status: "OPEN", // Freelancers only see open jobs
   });
 
-  // Available categories (can later fetch from backend)
-  const categories = ["Design", "Development", "Marketing", "Marketing", "Writing", "Other"];
-
   // Fetch jobs whenever filters change
   useEffect(() => {
     const fetchJobs = async () => {
@@ -79,7 +76,6 @@ export default function BrowseJobsPage() {
 
       {/* Filters */}
       <JobFilter
-        categories={categories}
         currentFilters={filters}
         onFilterChange={handleFilterChange}
         showStatus={false} // freelancers only see OPEN jobs

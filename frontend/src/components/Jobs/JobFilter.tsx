@@ -1,21 +1,19 @@
-import type { JobFilterPayload } from "../../api/jobs";
+import type { JobFilterPayload } from "../../types/jobs";
+import { JOB_CATEGORIES } from "../../lib/categories";
 
 interface JobFilterProps {
-  categories: string[];
   currentFilters: JobFilterPayload;
   onFilterChange: (filters: JobFilterPayload) => void;
-  showStatus?: boolean; // optional: show status dropdown
+  showStatus?: boolean;
 }
 
 export default function JobFilter({
-  categories,
   currentFilters,
   onFilterChange,
   showStatus = false,
 }: JobFilterProps) {
   return (
     <div className="flex gap-4 mb-4 flex-wrap">
-      {/* Search */}
       <input
         type="text"
         placeholder="Search jobs..."
@@ -24,21 +22,19 @@ export default function JobFilter({
         className="border rounded p-2 flex-1 min-w-[150px]"
       />
 
-      {/* Category */}
       <select
         value={currentFilters.category ?? ""}
         onChange={(e) => onFilterChange({ ...currentFilters, category: e.target.value })}
-        className="border rounded p-2 min-w-[120px]"
+        className="border rounded p-2 min-w-[160px]"
       >
         <option value="">All Categories</option>
-        {categories.map((c) => (
-          <option key={c} value={c}>
-            {c}
+        {JOB_CATEGORIES.map((c) => (
+          <option key={c.value} value={c.value}>
+            {c.label}
           </option>
         ))}
       </select>
 
-      {/* Status (optional for client dashboard) */}
       {showStatus && (
         <select
           value={currentFilters.status ?? ""}
@@ -52,7 +48,6 @@ export default function JobFilter({
         >
           <option value="">All Status</option>
           <option value="OPEN">Open</option>
-          <option value="CLOSED">Closed</option>
           <option value="IN_PROGRESS">In Progress</option>
           <option value="COMPLETED">Completed</option>
         </select>

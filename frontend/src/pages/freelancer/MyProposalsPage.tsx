@@ -5,6 +5,7 @@ import type { FreelancerProposalResponse, ProposalStatus, JobStatus } from "@/ty
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { parseApiError } from "@/lib/apiError";
 
 const MyProposalsPage: React.FC = () => {
   const [proposals, setProposals] = useState<FreelancerProposalResponse[]>([]);
@@ -16,11 +17,11 @@ const MyProposalsPage: React.FC = () => {
   const getProposalBadgeVariant = (status: ProposalStatus) => {
     switch (status) {
       case "ACCEPTED":
-        return "default"; 
+        return "default" as const;
       case "REJECTED":
-        return "destructive"; 
-      case "PENDING":
-        return "secondary";
+        return "destructive" as const;
+      default:
+        return "secondary" as const;
     }
   };
 
@@ -28,35 +29,37 @@ const MyProposalsPage: React.FC = () => {
   const getJobBadgeVariant = (status: JobStatus) => {
     switch (status) {
       case "OPEN":
-        return "outline"; 
+        return "outline" as const;
       case "IN_PROGRESS":
-        return "default"; 
-      case "COMPLETED":
-        return "secondary";
-      case "CANCELLED":
-        return "destructive";
-    }
-  };
-
-  const fetchProposals = async () => {
-    try {
-      setLoading(true);
-      const data = await getMyProposalsApi();
-      setProposals(data);
-    } catch (err: unknown) {
-      toast({
-        title: "Failed to load proposals",
-        description: err instanceof Error ? err.message : "Unknown error",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+        return "default" as const;
+      default:
+        return "secondary" as const;
     }
   };
 
   useEffect(() => {
-    fetchProposals();
-  }, []);
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await getMyProposalsApi();
+        if (!cancelled) setProposals(data);
+      } catch (err: unknown) {
+        if (!cancelled) {
+          toast({
+            title: "Failed to load proposals",
+            description: parseApiError(err),
+            variant: "destructive",
+          });
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [toast]);
 
   if (loading)
     return (
@@ -74,7 +77,7 @@ const MyProposalsPage: React.FC = () => {
         <Button
           size="lg"
           variant="default"
-          onClick={() => navigate("/freelancer/jobs/open")}
+          onClick={() => navigate("/freelancer/browse-jobs")}
         >
           Browse Available Jobs
         </Button>
@@ -101,7 +104,7 @@ const MyProposalsPage: React.FC = () => {
               </Button>
               <p className="mt-2 text-gray-600">
                 Proposed Budget:{" "}
-                <span className="font-medium">${proposal.proposedBudget}</span>
+                <span className="font-medium">${proposal.proposedPrice}</span>
               </p>
               <p className="mt-1 text-gray-500 flex items-center gap-2">
                 Job Status:{" "}

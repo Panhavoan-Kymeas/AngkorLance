@@ -13,7 +13,7 @@ public class JobDetailResponseDto {
     private final LocalDateTime createdAt;
     private final Long clientId;
     private final String clientName;
-    private final String jobImagePath;
+    private final String imageUrl;
     private final Integer proposalCount;
 
     public JobDetailResponseDto(
@@ -26,7 +26,7 @@ public class JobDetailResponseDto {
             LocalDateTime createdAt,
             Long clientId,
             String clientName,
-            String jobImagePath,
+            String imageUrl,
             Integer proposalCount
     ) {
         this.id = id;
@@ -38,7 +38,7 @@ public class JobDetailResponseDto {
         this.createdAt = createdAt;
         this.clientId = clientId;
         this.clientName = clientName;
-        this.jobImagePath = jobImagePath;
+        this.imageUrl = imageUrl;
         this.proposalCount = proposalCount;
     }
 
@@ -51,6 +51,6 @@ public class JobDetailResponseDto {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public Long getClientId() { return clientId; }
     public String getClientName() { return clientName; }
-    public String getJobImagePath() { return jobImagePath; }
+    public String getImageUrl() { return imageUrl; }
     public Integer getProposalCount() { return proposalCount; }
 }

@@ -13,6 +13,7 @@ public class ProposalResponseDto {
 
     private String message;
     private Double proposedPrice;
+    private String status; // PENDING, ACCEPTED, REJECTED
     private LocalDateTime createdAt;
 
     public static ProposalResponseDto fromEntity(Proposal proposal) {
@@ -26,6 +27,7 @@ public class ProposalResponseDto {
 
         dto.message = proposal.getMessage();
         dto.proposedPrice = proposal.getProposedPrice();
+        dto.status = proposal.getStatus();
         dto.createdAt = proposal.getCreatedAt();
 
         return dto;
@@ -38,5 +40,6 @@ public class ProposalResponseDto {
     public String getFreelancerEmail() { return freelancerEmail; }
     public String getMessage() { return message; }
     public Double getProposedPrice() { return proposedPrice; }
+    public String getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

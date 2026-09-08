@@ -7,6 +7,7 @@ import { Button } from "../../components/ui/button";
 import AuthLayout from "../../layouts/AuthLayout";
 import { useToast } from "../../hooks/use-toast";
 import { registerApi } from "../../api/auth";
+import { parseApiError } from "../../lib/apiError";
 
 type Role = "client" | "freelancer";
 
@@ -57,32 +58,16 @@ export default function RegisterPage() {
       });
 
       toast({
-        title: "Account Created",
-        description: "Your AngkorLance account has been successfully created!",
+        title: "Account created",
+        description: "Your AngkorLance account is ready. Please log in.",
       });
 
-      navigate("/login");
+      navigate("/auth/login");
     } catch (err: unknown) {
-      const fieldErrors = err && typeof err === 'object' && 'response' in err
-        ? (err as { response?: { data?: { data?: Record<string, string>; message?: string } } }).response?.data?.data
-        : null;
-      let description = "";
-
-      if (fieldErrors) {
-        // Take the first field error
-        description = Object.values(fieldErrors)[0] as string;
-      } else {
-        // fallback to generic message
-        const errorMessage = err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
-          : null;
-        description = errorMessage || "Something went wrong. Please try again.";
-      }
-
       toast({
         variant: "destructive",
-        title: "Registration Failed",
-        description,
+        title: "Registration failed",
+        description: parseApiError(err),
       });
     } finally {
       setLoading(false);

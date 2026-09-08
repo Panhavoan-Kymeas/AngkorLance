@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,8 @@ import com.angkorlance.backend.dto.UpdateJobRequestDto;
 import com.angkorlance.backend.entity.Image;
 import com.angkorlance.backend.entity.Job;
 import com.angkorlance.backend.entity.User;
+import com.angkorlance.backend.exception.ConflictException;
+import com.angkorlance.backend.exception.ResourceNotFoundException;
 import com.angkorlance.backend.repository.JobRepository;
 import com.angkorlance.backend.repository.UserRepository;
 
@@ -35,10 +38,11 @@ public class JobService {
         this.fileStorageService = fileStorageService;
     }
 
+    @Transactional
     public Long createJob(JobCreateRequestDTO request, Long clientId) {
 
         User client = userRepository.findById(clientId)
-                .orElseThrow(() -> new RuntimeException("Client not found"));
+                .orElseThrow(() -> ResourceNotFoundException.of("Client", clientId));
 
         Job job = new Job();
         job.setTitle(request.getTitle());
@@ -90,30 +94,36 @@ public class JobService {
                 .toList();
     }
 
+    @Transactional
     public void deleteJob(Long jobId, Long clientId) {
 
-        Job job = jobRepository.findByIdAndClientId(jobId, clientId)
-                .orElseThrow(() -> new RuntimeException("Job not found or not authorized"));
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Job", jobId));
+
+        if (!job.getClient().getId().equals(clientId)) {
+            throw new AccessDeniedException("You do not own this job");
+        }
 
         if (!"OPEN".equals(job.getStatus())) {
-            throw new RuntimeException("Only OPEN jobs can be deleted");
+            throw new ConflictException("Only OPEN jobs can be deleted");
         }
 
         jobRepository.delete(job);
     }
 
+    @Transactional
     public ClientJobResponseDto updateJob(Long jobId, UpdateJobRequestDto dto, Long userId) {
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> ResourceNotFoundException.of("Job", jobId));
 
         // Ensure this job belongs to the current client
         if (!job.getClient().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized");
+            throw new AccessDeniedException("You do not own this job");
         }
 
         // Only allow updates if job is OPEN
         if (!"OPEN".equals(job.getStatus())) {
-            throw new RuntimeException("Cannot update job that is not OPEN");
+            throw new ConflictException("Cannot update a job that is not OPEN");
         }
 
         // Update fields if provided
@@ -157,10 +167,11 @@ public class JobService {
                 proposalCount);
     }
 
+    @Transactional(readOnly = true)
     public JobDetailResponseDto getJobDetail(Long jobId) {
 
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> ResourceNotFoundException.of("Job", jobId));
 
         String imagePath = null;
         if (job.getJobImage() != null) {
@@ -211,14 +222,14 @@ public class JobService {
     public JobCompletionResponseDto completeJob(Long jobId, Long clientId) {
 
         Job job = jobRepository.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> ResourceNotFoundException.of("Job", jobId));
 
         if (!job.getClient().getId().equals(clientId)) {
-            throw new RuntimeException("Unauthorized");
+            throw new AccessDeniedException("You do not own this job");
         }
 
         if (!"IN_PROGRESS".equals(job.getStatus())) {
-            throw new RuntimeException("Job must be IN_PROGRESS to mark as completed");
+            throw new ConflictException("Job must be IN_PROGRESS to mark as completed");
         }
 
         job.setStatus("COMPLETED");

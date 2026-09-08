@@ -1,81 +1,130 @@
 package com.angkorlance.backend.advices;
 
-import com.angkorlance.backend.dto.ApiResponse;
-import com.angkorlance.backend.exception.DuplicateEmailException;
-import com.angkorlance.backend.exception.InvalidCredentialsException;
-import com.angkorlance.backend.exception.InvalidRoleException;
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.angkorlance.backend.exception.ConflictException;
+import com.angkorlance.backend.exception.DuplicateEmailException;
+import com.angkorlance.backend.exception.InvalidCredentialsException;
+import com.angkorlance.backend.exception.InvalidRoleException;
+import com.angkorlance.backend.exception.ResourceNotFoundException;
 
+/**
+ * Central error handling. Every error response is an RFC 7807 {@link ProblemDetail}
+ * ({@code application/problem+json}) with a {@code traceId} extension so a client
+ * report can be correlated with a server log line. Field-level validation errors
+ * are returned under an {@code errors} extension (map of field name -> message).
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handle validation errors from @Valid
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // --- 400 Bean Validation (@Valid request bodies) ---
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
-
-        // LinkedHashMap preserves insertion order
+    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(fe ->
+                errors.putIfAbsent(fe.getField(), fe.getDefaultMessage()));
 
-        // Add fields in desired order
-        String[] fieldOrder = {"name", "email", "password", "role"};
-
-        // First, put Bean Validation errors
-        for (String field : fieldOrder) {
-            ex.getBindingResult().getFieldErrors().stream()
-                    .filter(f -> f.getField().equals(field))
-                    .findFirst()
-                    .ifPresent(f -> errors.put(field, f.getDefaultMessage()));
-        }
-
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ApiResponse<>(false, "Validation failed", errors));
+        ProblemDetail pd = base(HttpStatus.BAD_REQUEST, "Validation failed",
+                "One or more fields are invalid.");
+        pd.setProperty("errors", errors);
+        return pd;
     }
 
-    // Handle duplicate email during registration
+    // --- 409 duplicate email on registration ---
     @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleDuplicateEmail(DuplicateEmailException ex) {
-        Map<String, String> errors = new LinkedHashMap<>();
-        errors.put("email", ex.getMessage()); // always in order
-        return ResponseEntity
-                .badRequest()
-                .body(new ApiResponse<>(false, "Registration failed", errors));
+    public ProblemDetail handleDuplicateEmail(DuplicateEmailException ex) {
+        ProblemDetail pd = base(HttpStatus.CONFLICT, "Registration failed", ex.getMessage());
+        pd.setProperty("errors", Map.of("email", ex.getMessage()));
+        return pd;
     }
 
-    // Handle invalid role during registration
+    // --- 400 invalid role on registration ---
     @ExceptionHandler(InvalidRoleException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidRole(InvalidRoleException ex) {
-        Map<String, String> errors = new LinkedHashMap<>();
-        errors.put("role", ex.getMessage());
-        return ResponseEntity
-                .badRequest()
-                .body(new ApiResponse<>(false, "Registration failed", errors));
+    public ProblemDetail handleInvalidRole(InvalidRoleException ex) {
+        ProblemDetail pd = base(HttpStatus.BAD_REQUEST, "Registration failed", ex.getMessage());
+        pd.setProperty("errors", Map.of("role", ex.getMessage()));
+        return pd;
     }
 
-    // Handle invalid login credentials
+    // --- 401 bad login credentials ---
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleInvalidCredentials(InvalidCredentialsException ex) {
-        Map<String, String> errors = new LinkedHashMap<>();
-        errors.put("login", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(new ApiResponse<>(false, "Login failed", errors));
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
+        return base(HttpStatus.UNAUTHORIZED, "Login failed", ex.getMessage());
     }
 
-    // Handle any other unexpected exceptions
+    // --- 401 any other authentication failure ---
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthentication(AuthenticationException ex) {
+        return base(HttpStatus.UNAUTHORIZED, "Authentication required",
+                "You must be authenticated to access this resource.");
+    }
+
+    // --- 403 authenticated but not allowed ---
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        return base(HttpStatus.FORBIDDEN, "Access denied",
+                "You do not have permission to perform this action.");
+    }
+
+    // --- 404 ---
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
+        return base(HttpStatus.NOT_FOUND, "Not found", ex.getMessage());
+    }
+
+    // --- 409 state conflict ---
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleConflict(ConflictException ex) {
+        return base(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+    }
+
+    // --- 413 upload too large ---
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ProblemDetail handleUploadTooLarge(MaxUploadSizeExceededException ex) {
+        return base(HttpStatus.PAYLOAD_TOO_LARGE, "File too large",
+                "The uploaded file exceeds the maximum allowed size.");
+    }
+
+    // --- 400 bad input (type mismatch, malformed body, illegal argument) ---
+    @ExceptionHandler({ IllegalArgumentException.class })
+    public ProblemDetail handleBadRequest(IllegalArgumentException ex) {
+        return base(HttpStatus.BAD_REQUEST, "Bad request", ex.getMessage());
+    }
+
+    // --- 500 catch-all: never leak internals to the client ---
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handleAllOtherExceptions(Exception ex) {
-        Map<String, String> errors = new LinkedHashMap<>();
-        errors.put("error", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponse<>(false, "Something went wrong", errors));
+    public ProblemDetail handleUnexpected(Exception ex) {
+        String traceId = UUID.randomUUID().toString();
+        log.error("Unhandled exception [traceId={}]", traceId, ex);
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR,
+                "An unexpected error occurred. Please try again later.");
+        pd.setTitle("Internal server error");
+        pd.setProperty("traceId", traceId);
+        pd.setProperty("timestamp", Instant.now().toString());
+        return pd;
+    }
+
+    private ProblemDetail base(HttpStatus status, String title, String detail) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
+        pd.setTitle(title);
+        pd.setProperty("traceId", UUID.randomUUID().toString());
+        pd.setProperty("timestamp", Instant.now().toString());
+        return pd;
     }
 }

@@ -62,6 +62,15 @@ public class ProposalController {
         return ResponseEntity.ok(response);
     }
 
+    // Client rejects a single pending proposal on one of their OPEN jobs.
+    @PostMapping("/proposals/{proposalId}/reject")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<Void> rejectProposal(@PathVariable Long proposalId) {
+        Long clientId = SecurityUtil.getCurrentUserId();
+        proposalService.rejectProposal(proposalId, clientId);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/my-proposals")
     @PreAuthorize("hasRole('FREELANCER')")
     public ResponseEntity<List<FreelancerProposalResponseDto>> getMyProposals() {

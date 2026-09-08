@@ -6,23 +6,23 @@ public class FreelancerProposalResponseDto {
     private final Long jobId;
     private final String jobTitle;
     private final String jobStatus;
-    private final Double proposedBudget;
-    private final String proposalStatus;
+    private final Double proposedPrice;
+    private final String status;
 
     public FreelancerProposalResponseDto(
             Long proposalId,
             Long jobId,
             String jobTitle,
             String jobStatus,
-            Double proposedBudget,
-            String proposalStatus) {
+            Double proposedPrice,
+            String status) {
 
         this.proposalId = proposalId;
         this.jobId = jobId;
         this.jobTitle = jobTitle;
         this.jobStatus = jobStatus;
-        this.proposedBudget = proposedBudget;
-        this.proposalStatus = proposalStatus;
+        this.proposedPrice = proposedPrice;
+        this.status = status;
     }
 
     public Long getProposalId() {
@@ -41,11 +41,11 @@ public class FreelancerProposalResponseDto {
         return jobStatus;
     }
 
-    public Double getProposedBudget() {
-        return proposedBudget;
+    public Double getProposedPrice() {
+        return proposedPrice;
     }
 
-    public String getProposalStatus() {
-        return proposalStatus;
+    public String getStatus() {
+        return status;
     }
 }

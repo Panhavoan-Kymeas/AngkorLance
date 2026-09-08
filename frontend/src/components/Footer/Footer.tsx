@@ -28,10 +28,10 @@ export default function Footer() {
 
   /** Determine product links based on role */
   let productLinks = [
-    { label: "Browse Jobs", path: "/jobs" },
-    { label: "Post a Job", path: "/post-job" },
-    { label: "Pricing", path: "/pricing" },
     { label: "How it Works", path: "/how-it-works" },
+    { label: "Pricing", path: "/pricing" },
+    { label: "Sign Up", path: "/auth/register" },
+    { label: "Log In", path: "/auth/login" },
   ]
 
   if (user?.role === "FREELANCER") {
@@ -136,14 +136,11 @@ export default function Footer() {
         <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
           <p>© {new Date().getFullYear()} Angkorlance. All rights reserved.</p>
           <div className="flex gap-4">
-            <Link to="/terms">
-              <Button variant="link" className="p-0 h-auto">Terms</Button>
+            <Link to="/about">
+              <Button variant="link" className="p-0 h-auto">About</Button>
             </Link>
-            <Link to="/privacy">
-              <Button variant="link" className="p-0 h-auto">Privacy</Button>
-            </Link>
-            <Link to="/cookies">
-              <Button variant="link" className="p-0 h-auto">Cookies</Button>
+            <Link to="/contact">
+              <Button variant="link" className="p-0 h-auto">Contact</Button>
             </Link>
           </div>
         </div>

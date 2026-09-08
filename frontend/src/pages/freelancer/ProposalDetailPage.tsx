@@ -7,17 +7,10 @@ import { useToast } from "@/hooks/use-toast";
 import type { FreelancerProposalResponse, JobStatus, ProposalStatus } from "@/types/proposal";
 import { getMyProposalsApi } from "@/api/proposals";
 import { fetchJobDetailApi } from "@/api/jobs";
-
-interface JobDetail {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  budget: number;
-  status: JobStatus;
-  jobImage?: string | null;
-  createdAt: string;
-}
+import type { JobDetail } from "@/types/jobs";
+import { assetUrl } from "@/lib/assets";
+import { categoryLabel } from "@/lib/categories";
+import { parseApiError } from "@/lib/apiError";
 
 export default function FreelancerProposalDetailPage() {
   const { proposalId } = useParams<{ proposalId: string }>();
@@ -56,9 +49,8 @@ export default function FreelancerProposalDetailPage() {
         // Fetch job details
         const jobDetail = await fetchJobDetailApi(p.jobId);
         setJob(jobDetail);
-      } catch (err: any) {
-        console.error(err);
-        toast({ title: "Error", description: err.response?.data?.message || "Failed to load proposal details." });
+      } catch (err) {
+        toast({ variant: "destructive", title: "Error", description: parseApiError(err, "Failed to load proposal details.") });
       } finally {
         setLoading(false);
       }
@@ -69,20 +61,18 @@ export default function FreelancerProposalDetailPage() {
 
   const getJobStatusVariant = (status: JobStatus) => {
     switch (status) {
-      case "OPEN": return "outline";
-      case "IN_PROGRESS": return "secondary";
-      case "COMPLETED": return "default";
-      case "CANCELLED": return "destructive";
-      default: return "default";
+      case "OPEN": return "outline" as const;
+      case "IN_PROGRESS": return "secondary" as const;
+      default: return "default" as const;
     }
   };
 
   const getProposalStatusVariant = (status: ProposalStatus) => {
     switch (status) {
-      case "PENDING": return "outline";
-      case "ACCEPTED": return "secondary";
-      case "REJECTED": return "destructive";
-      default: return "default";
+      case "PENDING": return "outline" as const;
+      case "ACCEPTED": return "secondary" as const;
+      case "REJECTED": return "destructive" as const;
+      default: return "default" as const;
     }
   };
 
@@ -111,9 +101,9 @@ export default function FreelancerProposalDetailPage() {
 
       {/* Job Card */}
       <Card className="shadow-md rounded-xl overflow-hidden">
-        {job.jobImage && (
+        {job.imageUrl && (
           <img
-            src={job.jobImage}
+            src={assetUrl(job.imageUrl)}
             alt={job.title}
             className="w-full h-64 object-cover md:rounded-t-xl"
           />
@@ -121,13 +111,13 @@ export default function FreelancerProposalDetailPage() {
         <CardContent className="p-6 flex flex-col gap-4">
           <div className="flex justify-between items-start flex-wrap gap-2">
             <h1 className="text-3xl font-bold">{job.title}</h1>
-            <Badge variant={getJobStatusVariant(job.status)} className="text-sm">
-              {job.status}
+            <Badge variant={getJobStatusVariant(job.status ?? "OPEN")} className="text-sm">
+              {(job.status ?? "OPEN").replace("_", " ")}
             </Badge>
           </div>
-          <p className="text-muted-foreground">{job.description}</p>
+          <p className="text-muted-foreground whitespace-pre-line">{job.description}</p>
           <div className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="secondary">Category: {job.category}</Badge>
+            <Badge variant="secondary">Category: {categoryLabel(job.category)}</Badge>
             <Badge variant="outline">Budget: ${job.budget}</Badge>
             <Badge variant="outline">
               Created: {new Date(job.createdAt).toLocaleDateString()}
@@ -147,8 +137,8 @@ export default function FreelancerProposalDetailPage() {
           </div>
 
           <div className="flex flex-wrap gap-2 mt-2">
-            <Badge variant="outline">Proposed: ${proposal.proposedBudget}</Badge>
-            <Badge variant="secondary">Job Status: {job.status}</Badge>
+            <Badge variant="outline">Proposed: ${proposal.proposedPrice}</Badge>
+            <Badge variant="secondary">Job Status: {(job.status ?? "OPEN").replace("_", " ")}</Badge>
             <Badge variant="outline">Proposal ID: {proposal.proposalId}</Badge>
           </div>
 

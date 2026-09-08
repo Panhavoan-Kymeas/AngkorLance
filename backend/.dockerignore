@@ -1,0 +1,9 @@
+target/
+uploads/
+*.env
+!*.env.example
+.git
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+HELP.md
+*.md

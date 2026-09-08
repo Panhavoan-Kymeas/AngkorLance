@@ -4,9 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { createJobApi } from "@/api/jobs";
+import { JOB_CATEGORIES } from "@/lib/categories";
+import { parseApiError } from "@/lib/apiError";
+
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 export default function CreateJobPage() {
   const navigate = useNavigate();
@@ -15,15 +26,31 @@ export default function CreateJobPage() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [budget, setBudget] = useState("");
-  const [deadline, setDeadline] = useState("");
   const [jobImage, setJobImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (file) {
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        toast({ variant: "destructive", title: "Invalid image", description: "Use a PNG, JPEG or WEBP file." });
+        e.target.value = "";
+        return;
+      }
+      if (file.size > MAX_IMAGE_BYTES) {
+        toast({ variant: "destructive", title: "Image too large", description: "Maximum size is 5 MB." });
+        e.target.value = "";
+        return;
+      }
+    }
+    setJobImage(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title || !description || !category || !budget) {
-      toast({ title: "Error", description: "Please fill all required fields." });
+      toast({ variant: "destructive", title: "Missing fields", description: "Please fill all required fields." });
       return;
     }
 
@@ -32,18 +59,15 @@ export default function CreateJobPage() {
     formData.append("description", description);
     formData.append("category", category);
     formData.append("budget", budget);
-    if (deadline) formData.append("deadline", deadline);
     if (jobImage) formData.append("jobImage", jobImage);
 
     setLoading(true);
     try {
-      const newJob = await createJobApi(formData);
-      toast({ title: "Success", description: "Job created successfully." });
-      console.log("Job created at:", newJob.createdAt); 
-      navigate("/client/jobs");
+      const newJobId = await createJobApi(formData);
+      toast({ title: "Job created", description: "Your job is now open for proposals." });
+      navigate(`/client/jobs/${newJobId}`);
     } catch (err) {
-      console.error(err);
-      toast({ title: "Error", description: "Failed to create job." });
+      toast({ variant: "destructive", title: "Could not create job", description: parseApiError(err) });
     } finally {
       setLoading(false);
     }
@@ -54,7 +78,7 @@ export default function CreateJobPage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">Create a New Job</h1>
         <p className="text-muted-foreground text-lg">
-          Post a new job to attract skilled freelancers. The creation date is automatically set.
+          Post a job to attract skilled freelancers.
         </p>
       </div>
 
@@ -66,7 +90,13 @@ export default function CreateJobPage() {
 
         <div>
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" placeholder="Describe your project in detail" value={description} onChange={(e) => setDescription(e.target.value)} rows={6} />
+          <Textarea
+            id="description"
+            placeholder="Describe your project in detail"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={6}
+          />
         </div>
 
         <div>
@@ -76,28 +106,30 @@ export default function CreateJobPage() {
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="web_development">Web Development</SelectItem>
-              <SelectItem value="mobile_development">Mobile Development</SelectItem>
-              <SelectItem value="design">Design</SelectItem>
-              <SelectItem value="writing">Writing</SelectItem>
-              <SelectItem value="marketing">Marketing</SelectItem>
+              {JOB_CATEGORIES.map((c) => (
+                <SelectItem key={c.value} value={c.value}>
+                  {c.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
         <div>
           <Label htmlFor="budget">Budget (USD)</Label>
-          <Input id="budget" type="number" placeholder="Enter budget" value={budget} onChange={(e) => setBudget(e.target.value)} />
-        </div>
-
-        <div>
-          <Label htmlFor="deadline">Deadline (optional)</Label>
-          <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+          <Input
+            id="budget"
+            type="number"
+            min={1}
+            placeholder="Enter budget"
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+          />
         </div>
 
         <div>
           <Label htmlFor="jobImage">Job Image (optional)</Label>
-          <Input id="jobImage" type="file" accept="image/*" onChange={(e) => setJobImage(e.target.files?.[0] ?? null)} />
+          <Input id="jobImage" type="file" accept="image/png,image/jpeg,image/webp" onChange={handleImageChange} />
           {jobImage && <p className="text-sm mt-1 text-muted-foreground">Selected file: {jobImage.name}</p>}
         </div>
 
